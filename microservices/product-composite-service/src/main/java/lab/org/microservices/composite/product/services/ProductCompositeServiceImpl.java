@@ -37,7 +37,7 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
     @Override
     public Mono<ProductAggregate> getProduct(int productId) {
         LOG.info("Will get composite product info for product.id={}", productId);
-        Mono.zip(
+        return Mono.zip(
                 values -> createProductAggregate((Product) values[0], (List<Recommendation>) values[1], (List<Review>) values[2], serviceUtil.getServiceAddress()),
                 integration.getProduct(productId),
                 integration.getRecommendations(productId).collectList(),
@@ -85,7 +85,7 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
 
         try {
             LOG.debug("deleteCompositeProduct: Deletes a product aggregate for productId: {}", productId);
-            return Mono.zip(r -> "", integration.deleteProduct(productId), integration.deleteReviews(productId), integration.deleteRecommendations())
+            return Mono.zip(r -> "", integration.deleteProduct(productId), integration.deleteReviews(productId), integration.deleteRecommendations(productId))
                     .doOnError(ex ->  LOG.warn("delete failed: {}", ex.toString()))
                     .log(LOG.getName(), Level.FINE).then();
         } catch (RuntimeException re) {
