@@ -1,6 +1,17 @@
 package lab.org.microservices.composite.product;
 
+import lab.org.api.composite.product.ProductAggregate;
+import lab.org.api.composite.product.RecommendationSummary;
+import lab.org.api.composite.product.ReviewSummary;
+import lab.org.api.core.product.Product;
+import lab.org.api.core.recommendation.Recommendation;
+import lab.org.api.core.review.Review;
+import lab.org.api.event.Event;
+import org.hamcrest.MatcherAssert;
+import org.hamcrest.Matchers;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,13 +19,25 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.stream.binder.test.OutputDestination;
 import org.springframework.context.annotation.Import;
 import org.springframework.cloud.stream.binder.test.TestChannelBinderConfiguration;
+import org.springframework.http.HttpStatus;
 import org.springframework.messaging.Message;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+import static java.util.Collections.singletonList;
+import static lab.org.api.event.Event.Type.CREATE;
+import static lab.org.api.event.Event.Type.DELETE;
+import static lab.org.microservices.composite.product.IsSameEvent.sameEventExceptCreatedAt;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static org.springframework.http.HttpStatus.ACCEPTED;
+import static reactor.core.publisher.Mono.just;
 
 @SpringBootTest(
         webEnvironment = RANDOM_PORT,
@@ -36,6 +59,81 @@ public class MessagingTests {
         purgeMessages("reviews");
     }
 
+    @Test
+    void createCompositeProduct1() {
+        ProductAggregate composite = new ProductAggregate(1, "name", 1, null, null, null);
+        postAndVerifyProduct(composite, ACCEPTED);
+        final List<String> productMessages = getMessages("products");
+        final List<String> recommendationMessages = getMessages("recommendations");
+        final List<String> reviewMessages = getMessages("reviews");
+
+        assertEquals(1, productMessages.size());
+        Event<Integer, Product> expectedEvent =
+                new Event(CREATE, composite.getProductId(), new Product(composite.getProductId(), composite.getName(), composite.getWeight(), null));
+        assertThat(productMessages.get(0), is(sameEventExceptCreatedAt(expectedEvent)));
+        assertEquals(0, recommendationMessages.size());
+        assertEquals(0, reviewMessages.size());
+    }
+
+    @Test
+    void createCompositeProduct2() {
+        ProductAggregate composite = new ProductAggregate(1, "name", 1,
+                singletonList(new RecommendationSummary(1, "a", 1, "c")),
+                singletonList(new ReviewSummary(1, "a", "s", "c")), null);
+        postAndVerifyProduct(composite, ACCEPTED);
+
+        final List<String> productMessages = getMessages("products");
+        final List<String> recommendationMessages = getMessages("recommendations");
+        final List<String> reviewMessages = getMessages("reviews");
+
+        assertEquals(1, productMessages.size());
+
+        Event<Integer, Product> expectedProductEvent = new Event(CREATE, composite.getProductId(), new Product(composite.getProductId(), composite.getName(), composite.getWeight(), null));
+        assertThat(productMessages.get(0), is(sameEventExceptCreatedAt(expectedProductEvent)));
+        assertEquals(1, recommendationMessages.size());
+
+        RecommendationSummary rec = composite.getRecommendations().get(0);
+        Event<Integer, Product> expectedRecommendationEvent =
+                new Event(CREATE, composite.getProductId(),
+                        new Recommendation(composite.getProductId(), rec.getRecommendationId(), rec.getAuthor(), rec.getRate(), rec.getContent(), null));
+        assertThat(recommendationMessages.get(0), is(sameEventExceptCreatedAt(expectedRecommendationEvent)));
+
+        // Assert one create review event queued up
+        assertEquals(1, reviewMessages.size());
+
+        ReviewSummary rev = composite.getReviews().get(0);
+        Event<Integer, Product> expectedReviewEvent =
+                new Event(CREATE, composite.getProductId(), new Review(composite.getProductId(), rev.getReviewId(), rev.getAuthor(), rev.getSubject(), rev.getContent(), null));
+        assertThat(reviewMessages.get(0), is(sameEventExceptCreatedAt(expectedReviewEvent)));
+    }
+
+    @Test
+    void deleteCompositeProduct() {
+        deleteAndVerifyProduct(1, ACCEPTED);
+
+        final List<String> productMessages = getMessages("products");
+        final List<String> recommendationMessages = getMessages("recommendations");
+        final List<String> reviewMessages = getMessages("reviews");
+
+        // Assert one delete product event queued up
+        assertEquals(1, productMessages.size());
+
+        Event<Integer, Product> expectedProductEvent = new Event(DELETE, 1, null);
+        assertThat(productMessages.get(0), is(sameEventExceptCreatedAt(expectedProductEvent)));
+
+        // Assert one delete recommendation event queued up
+        assertEquals(1, recommendationMessages.size());
+
+        Event<Integer, Product> expectedRecommendationEvent = new Event(DELETE, 1, null);
+        assertThat(recommendationMessages.get(0), is(sameEventExceptCreatedAt(expectedRecommendationEvent)));
+
+        // Assert one delete review event queued up
+        assertEquals(1, reviewMessages.size());
+
+        Event<Integer, Product> expectedReviewEvent = new Event(DELETE, 1, null);
+        assertThat(reviewMessages.get(0), is(sameEventExceptCreatedAt(expectedReviewEvent)));
+    }
+
     private void purgeMessages(String bindingName) {
         getMessages(bindingName);
     }
@@ -47,7 +145,7 @@ public class MessagingTests {
         while (anyMoreMessages) {
             Message<byte[]> message = getMessage(bindingName);
             if (message == null)
-                anyMoreMessages = false
+                anyMoreMessages = false;
             else
                 messages.add(new String(message.getPayload()));
 
@@ -63,5 +161,20 @@ public class MessagingTests {
             return null;
         }
 
+    }
+
+    private void postAndVerifyProduct(ProductAggregate compositeProduct, HttpStatus expectedStatus) {
+        client.post()
+                .uri("/product-composite")
+                .body(just(compositeProduct), ProductAggregate.class)
+                .exchange()
+                .expectStatus().isEqualTo(expectedStatus);
+    }
+
+    private void deleteAndVerifyProduct(int productId, HttpStatus expectedStatus) {
+        client.delete()
+                .uri("/product-composite/" + productId)
+                .exchange()
+                .expectStatus().isEqualTo(expectedStatus);
     }
 }
