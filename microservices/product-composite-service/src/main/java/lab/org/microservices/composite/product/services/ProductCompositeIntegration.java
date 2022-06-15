@@ -6,7 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.messaging.Message;
@@ -40,17 +39,15 @@ import static reactor.core.publisher.Flux.empty;
 public class ProductCompositeIntegration implements ProductService,
         RecommendationService, ReviewService{
 
+    private static final String PRODUCT_SERVICE_URL = "http://product";
+    private static final String RECOMMENDATION_SERVICE_URL = "http://recommendation";
+    private static final String REVIEW_SERVICE_URL = "http://review";
+
     private static final Logger LOG = LoggerFactory.getLogger(ProductCompositeIntegration.class);
 
     private final WebClient client;
 
     private final ObjectMapper mapper;
-
-    private final String productServiceUrl;
-
-    private final String recommendationServiceUrl;
-
-    private final String reviewServiceUrl;
 
     private final Scheduler scheduler;
 
@@ -61,27 +58,17 @@ public class ProductCompositeIntegration implements ProductService,
             @Qualifier("publishEventScheduler") Scheduler publishEventScheduler,
             WebClient.Builder webClient,
             StreamBridge streamBridge,
-            ObjectMapper mapper,
-            @Value("${app.product-service.host}") String productServiceHost,
-            @Value("${app.product-service.port}") int productServicePort,
-
-            @Value("${app.recommendation-service.host}") String recommendationServiceHost,
-            @Value("${app.recommendation-service.port}") int recommendationServicePort,
-            @Value("${app.review-service.host}") String reviewServiceHost,
-            @Value("${app.review-service.port}") int reviewServicePort
+            ObjectMapper mapper
     ) {
         this.scheduler = publishEventScheduler;
         this.client = webClient.build();
         this.mapper = mapper;
         this.streamBridge = streamBridge;
-        productServiceUrl = "http://" + productServiceHost + ":" + productServicePort + "/product/";
-        recommendationServiceUrl = "http://" + recommendationServiceHost + ":" + recommendationServicePort + "/recommendation?productId=";
-        reviewServiceUrl = "http://" + reviewServiceHost + ":" + reviewServicePort + "/review?productId=";
     }
 
     @Override
     public Mono<Product> getProduct(int productId) {
-        String url = productServiceUrl + "/product/" + productId;
+        String url = PRODUCT_SERVICE_URL + "/product/" + productId;
         LOG.debug("Will call the getProduct API on URL: {}", url);
         return client.get()
                 .uri(url)
@@ -102,7 +89,7 @@ public class ProductCompositeIntegration implements ProductService,
 
     @Override
     public Flux<Review> getReviews(int productId) {
-        String url = reviewServiceUrl + "?productId=" + productId;
+        String url = REVIEW_SERVICE_URL + "/review?productId=" + productId;
         LOG.debug("Will call the getReviews API on URL: {}", url);
         return client.get()
                 .uri(url)
@@ -119,7 +106,7 @@ public class ProductCompositeIntegration implements ProductService,
 
     @Override
     public Flux<Recommendation> getRecommendations(int productId) {
-        String url = recommendationServiceUrl + "?productId=" + productId;
+        String url = RECOMMENDATION_SERVICE_URL + "/recommendation?productId=" + productId;
         LOG.debug("Will call the getRecommendations API on URL: {}", url);
         return client.get()
                 .uri(url)
@@ -138,7 +125,7 @@ public class ProductCompositeIntegration implements ProductService,
     @Override
     public Mono<Product> createProduct(Product body) {
         return Mono.fromCallable(() -> {
-            sendMessage("products-out-0", new Event(CREATE, body.getProductId(), null));
+            sendMessage("products-out-0", new Event(CREATE, body.getProductId(), body));
             return body;
         }).subscribeOn(scheduler);
     }
@@ -152,21 +139,21 @@ public class ProductCompositeIntegration implements ProductService,
     @Override
     public Mono<Recommendation> createRecommendation(Recommendation body) {
         return Mono.fromCallable(() -> {
-            sendMessage("recommendations-out-0", new Event(CREATE, body.getProductId(), null));
+            sendMessage("recommendations-out-0", new Event(CREATE, body.getProductId(), body));
             return body;
         }).subscribeOn(scheduler);
 
     }
 
     public Mono<Health> getProductHealth(){
-        return getHealth(productServiceUrl);
+        return getHealth(PRODUCT_SERVICE_URL);
     }
     public Mono<Health> getRecommendationHealth(){
-        return getHealth(recommendationServiceUrl);
+        return getHealth(RECOMMENDATION_SERVICE_URL);
     }
 
     public Mono<Health> getReviewHealth(){
-        return getHealth(reviewServiceUrl);
+        return getHealth(REVIEW_SERVICE_URL);
     }
 
     private Mono<Health> getHealth(String url) {

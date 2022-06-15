@@ -1,8 +1,11 @@
 package lab.org.api.event;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.key.ZonedDateTimeKeySerializer;
 
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 
 
@@ -15,7 +18,7 @@ public class Event<K, T>{
     private final Type eventType;
     private final K key;
     private final T data;
-    private final ZonedDateTime eventCreatedAt;
+    private final LocalDateTime eventCreatedAt;
 
     public Event() {
         this.eventType = null;
@@ -28,7 +31,7 @@ public class Event<K, T>{
         this.eventType = eventType;
         this.key = key;
         this.data = data;
-        this.eventCreatedAt = ZonedDateTime.now();
+        this.eventCreatedAt = LocalDateTime.now();
     }
 
     public Type getEventType() {
@@ -43,8 +46,8 @@ public class Event<K, T>{
         return data;
     }
 
-    @JsonSerialize(using= ZonedDateTimeKeySerializer.class)
-    public ZonedDateTime getEventCreatedAt() {
+    @JsonSerialize(using= LocalDateTimeSerializer.class)
+    public LocalDateTime getEventCreatedAt() {
         return eventCreatedAt;
     }
 }

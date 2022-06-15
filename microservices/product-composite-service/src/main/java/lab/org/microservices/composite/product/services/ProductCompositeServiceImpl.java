@@ -9,7 +9,6 @@ import lab.org.util.http.ServiceUtil;
 import lab.org.api.core.product.Product;
 import lab.org.api.core.review.Review;
 import lab.org.api.core.recommendation.Recommendation;
-import lab.org.api.exceptions.NotFoundException;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;

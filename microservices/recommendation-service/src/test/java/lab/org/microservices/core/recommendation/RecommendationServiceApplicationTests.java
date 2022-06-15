@@ -20,12 +20,11 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import reactor.core.publisher.Mono;
 
 import java.util.function.Consumer;
 
 
-@SpringBootTest(webEnvironment = RANDOM_PORT)
+@SpringBootTest(webEnvironment = RANDOM_PORT, properties = {"eureka.client.enabled=false"})
 class RecommendationServiceApplicationTests  extends MongoDbTestBase {
 
     @Autowired
@@ -40,7 +39,7 @@ class RecommendationServiceApplicationTests  extends MongoDbTestBase {
 
     @BeforeEach
     void setupDb() {
-        repository.deleteAll();
+        repository.deleteAll().block();
     }
 
     @Test
@@ -67,6 +66,7 @@ class RecommendationServiceApplicationTests  extends MongoDbTestBase {
         int recommendationId = 1;
 
         sendCreateRecommendationEvent(productId, recommendationId);
+
         assertEquals(1, (long)repository.count().block());
 
         InvalidInputException thrown = assertThrows(

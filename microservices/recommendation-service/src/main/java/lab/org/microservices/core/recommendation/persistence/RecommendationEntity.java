@@ -6,8 +6,7 @@ import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "recommendations")
-@CompoundIndex(name = "proc-rec-id", unique = true, def =
-        "{'productId': 1, 'recommendationId': 1}")
+@CompoundIndex(name = "proc-rec-id", unique = true, def = "{'productId': 1, 'recommendationId' : 1}")
 public class RecommendationEntity {
 
     @Id
@@ -86,5 +85,10 @@ public class RecommendationEntity {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("RecommendationEntity: %s/%d", productId, recommendationId);
     }
 }

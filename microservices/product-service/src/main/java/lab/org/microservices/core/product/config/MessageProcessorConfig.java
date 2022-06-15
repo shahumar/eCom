@@ -27,23 +27,27 @@ public class MessageProcessorConfig {
     @Bean
     public Consumer<Event<Integer, Product>> messageProcessor() {
         return event -> {
-            LOG.info("Process message created at {}...", event.getEventCreatedAt());
+            LOG.info("Process message created at {}...{}", event.getEventCreatedAt(), event.getEventType());
             switch (event.getEventType()) {
+
                 case CREATE:
                     Product product = event.getData();
                     LOG.info("Create product with ID: {}", product.getProductId());
                     productService.createProduct(product).block();
                     break;
+
                 case DELETE:
                     int productId = event.getKey();
                     LOG.info("Delete recommendations with ProductID: {}", productId);
                     productService.deleteProduct(productId).block();
                     break;
+
                 default:
                     String errorMessage = "Incorrect event type: " + event.getEventType() + ", expected a CREATE or DELETE event";
                     LOG.warn(errorMessage);
                     throw new EventProcessingException(errorMessage);
             }
+
             LOG.info("Message processing done!");
         };
     }

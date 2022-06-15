@@ -7,9 +7,6 @@ import lab.org.api.core.product.Product;
 import lab.org.api.core.recommendation.Recommendation;
 import lab.org.api.core.review.Review;
 import lab.org.api.event.Event;
-import org.hamcrest.MatcherAssert;
-import org.hamcrest.Matchers;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -22,10 +19,8 @@ import org.springframework.cloud.stream.binder.test.TestChannelBinderConfigurati
 import org.springframework.http.HttpStatus;
 import org.springframework.messaging.Message;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import static java.util.Collections.singletonList;
@@ -41,7 +36,7 @@ import static reactor.core.publisher.Mono.just;
 
 @SpringBootTest(
         webEnvironment = RANDOM_PORT,
-        properties = {"spring.main.allow-bean-definition-overriding=true"})
+        properties = {"spring.main.allow-bean-definition-overriding=true", "eureka.client.enabled=false"})
 @Import({TestChannelBinderConfiguration.class})
 public class MessagingTests {
     private static final Logger LOG = LoggerFactory.getLogger(MessagingTests.class);
