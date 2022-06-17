@@ -27,8 +27,10 @@ import java.util.function.Consumer;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT, properties = {
         "spring.cloud.stream.defaultBinder=rabbit",
-        "logging.level.lab.org=DEBUG",
-        "eureka.client.enabled=false"})
+        "logging.level.se.magnus=DEBUG",
+        "eureka.client.enabled=false",
+        "spring.jpa.hibernate.ddl-auto=update",
+        "spring.cloud.config.enabled=false"})
 class ReviewServiceApplicationTests extends MySqlTestBase {
 
     @Autowired private WebTestClient client;

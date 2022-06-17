@@ -22,7 +22,10 @@ import static java.util.stream.IntStream.rangeClosed;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.data.domain.Sort.Direction.ASC;
 
-@DataMongoTest(excludeAutoConfiguration = EmbeddedMongoAutoConfiguration.class)
+@DataMongoTest(
+        excludeAutoConfiguration = EmbeddedMongoAutoConfiguration.class,
+        properties = {"spring.cloud.config.enabled=false"}
+)
 public class PersistenceTest extends MongoDbTestBase {
 
     @Autowired

@@ -5,63 +5,11 @@
 #   HOST=localhost PORT=7000 ./test-em-all.bash
 #
 : ${HOST=localhost}
-: ${PORT=8080}
+: ${PORT=8443}
 : ${PROD_ID_REVS_RECS=1}
 : ${PROD_ID_NOT_FOUND=13}
 : ${PROD_ID_NO_RECS=113}
 : ${PROD_ID_NO_REVS=213}
-
-function setupTestdata() {
-  body=\
-    '{"productId":1,"name":"product 1","weight":1, "recommendations":[
-    {"recommendationId":1,"author":"author
-    1","rate":1,"content":"content 1"},
-    {"recommendationId":2,"author":"author
-    2","rate":2,"content":"content 2"},
-    {"recommendationId":3,"author":"author
-    3","rate":3,"content":"content 3"}
-    ], "reviews":[
-    {"reviewId":1,"author":"author 1","subject":"subject
-    1","content":"content 1"},
-    {"reviewId":2,"author":"author 2","subject":"subject
-    2","content":"content 2"},
-    {"reviewId":3,"author":"author 3","subject":"subject
-    3","content":"content 3"}
-    ]}'
-  recreateComposite 1 "$body"
-  body=\
-    '{"productId":113,"name":"product 113","weight":113, "reviews":[
-    {"reviewId":1,"author":"author 1","subject":"subject
-    1","content":"content 1"},
-    {"reviewId":2,"author":"author 2","subject":"subject
-    2","content":"content 2"},
-    {"reviewId":3,"author":"author 3","subject":"subject
-    3","content":"content 3"}
-    ]}'
-  recreateComposite 113 "$body"
-
-  body=\
-    '{"productId":213,"name":"product 213","weight":213,
-    "recommendations":[
-    {"recommendationId":1,"author":"author
-    1","rate":1,"content":"content 1"},
-    {"recommendationId":2,"author":"author
-    2","rate":2,"content":"content 2"},
-    {"recommendationId":3,"author":"author
-    3","rate":3,"content":"content 3"}
-    ]}'
-  recreateComposite 213 "$body"
-}
-
-function recreateComposite() {
-  local productId=$1
-  local composite=$2
-  assertCurl 200 "curl -X DELETE http://$HOST:$PORT/product-
-    composite/${productId} -s"
-  curl -X POST http://$HOST:$PORT/product-composite -H "Content-Type:
-    application/json" --data "$composite"
-
-}
 
 function assertCurl() {
 
@@ -102,57 +50,151 @@ function assertEqual() {
 }
 
 function testUrl() {
-    url=$@
-    if $url -ks -f -o /dev/null
-    then
-        return 0
-    else
-        return 1
-    fi
+  url=$@
+  if $url -ks -f -o /dev/null
+  then
+    return 0
+  else
+    return 1
+  fi;
 }
 
 function waitForService() {
-    url=$@
-    echo -n "Wait for: $url .... "
+  url=$@
+  echo -n "Wait for: $url... "
+  n=0
+  until testUrl $url
+  do
+    n=$((n + 1))
+    if [[ $n == 100 ]]
+    then
+      echo " Give up"
+      exit 1
+    else
+      sleep 3
+      echo -n ", retry #$n "
+    fi
+  done
+  echo "DONE, continues..."
+}
+
+function testCompositeCreated() {
+
+    # Expect that the Product Composite for productId $PROD_ID_REVS_RECS has been created with three recommendations and three reviews
+    if ! assertCurl 200 "curl http://$HOST:$PORT/product-composite/$PROD_ID_REVS_RECS -s"
+    then
+        echo -n "FAIL"
+        return 1
+    fi
+
+    set +e
+    assertEqual "$PROD_ID_REVS_RECS" $(echo $RESPONSE | jq .productId)
+    if [ "$?" -eq "1" ] ; then return 1; fi
+
+    assertEqual 3 $(echo $RESPONSE | jq ".recommendations | length")
+    if [ "$?" -eq "1" ] ; then return 1; fi
+
+    assertEqual 3 $(echo $RESPONSE | jq ".reviews | length")
+    if [ "$?" -eq "1" ] ; then return 1; fi
+
+    set -e
+}
+
+function waitForMessageProcessing() {
+    echo "Wait for messages to be processed... "
+
+    # Give background processing some time to complete...
+    sleep 1
+
     n=0
-    until testUrl $url
+    until testCompositeCreated
     do
         n=$((n + 1))
-        if [[ $n == 100 ]]
+        if [[ $n == 40 ]]
         then
             echo " Give up"
             exit 1
         else
-            sleep 3
+            sleep 6
             echo -n ", retry #$n "
         fi
     done
-    echo "DONE, continues..."
+    echo "All messages are now processed!"
+}
+
+function recreateComposite() {
+  local productId=$1
+  local composite=$2
+
+  assertCurl 202 "curl -X DELETE http://$HOST:$PORT/product-composite/${productId} -s"
+  assertEqual 202 $(curl -X POST -s http://$HOST:$PORT/product-composite -H "Content-Type: application/json" --data "$composite" -w "%{http_code}")
+}
+
+function setupTestdata() {
+
+  body="{\"productId\":$PROD_ID_NO_RECS"
+  body+=\
+',"name":"product name A","weight":100, "reviews":[
+  {"reviewId":1,"author":"author 1","subject":"subject 1","content":"content 1"},
+  {"reviewId":2,"author":"author 2","subject":"subject 2","content":"content 2"},
+  {"reviewId":3,"author":"author 3","subject":"subject 3","content":"content 3"}
+]}'
+  recreateComposite "$PROD_ID_NO_RECS" "$body"
+
+  body="{\"productId\":$PROD_ID_NO_REVS"
+  body+=\
+',"name":"product name B","weight":200, "recommendations":[
+  {"recommendationId":1,"author":"author 1","rate":1,"content":"content 1"},
+  {"recommendationId":2,"author":"author 2","rate":2,"content":"content 2"},
+  {"recommendationId":3,"author":"author 3","rate":3,"content":"content 3"}
+]}'
+  recreateComposite "$PROD_ID_NO_REVS" "$body"
+
+
+  body="{\"productId\":$PROD_ID_REVS_RECS"
+  body+=\
+',"name":"product name C","weight":300, "recommendations":[
+      {"recommendationId":1,"author":"author 1","rate":1,"content":"content 1"},
+      {"recommendationId":2,"author":"author 2","rate":2,"content":"content 2"},
+      {"recommendationId":3,"author":"author 3","rate":3,"content":"content 3"}
+  ], "reviews":[
+      {"reviewId":1,"author":"author 1","subject":"subject 1","content":"content 1"},
+      {"reviewId":2,"author":"author 2","subject":"subject 2","content":"content 2"},
+      {"reviewId":3,"author":"author 3","subject":"subject 3","content":"content 3"}
+  ]}'
+  recreateComposite "$PROD_ID_REVS_RECS" "$body"
+
 }
 
 set -e
 
-echo "Start tests:" `date`
+echo "Start Tests:" `date`
 
 echo "HOST=${HOST}"
 echo "PORT=${PORT}"
 
 if [[ $@ == *"start"* ]]
 then
-    echo "Restarting the test enviroment"
-    echo "$ docker-compose down --remove-orphans"
-    docker-compose down --remove-orphans
-    echo "$ docker-compose up -d"
-    docker-compose up -d
+  echo "Restarting the test environment..."
+  echo "$ docker-compose down --remove-orphans"
+  docker-compose down --remove-orphans
+  echo "$ docker-compose up -d"
+  docker-compose up -d
 fi
 
-waitForService curl http://$HOST:$PORT/product-composite/$PROD_ID_REVS_RECS
+waitForService curl http://$HOST:$PORT/actuator/health
+
+# Verify access to Eureka and that all four microservices are registered in Eureka
+assertCurl 200 "curl -H "accept:application/json" $HOST:$PORT/eureka/api/apps -s"
+assertEqual 5 $(echo $RESPONSE | jq ".applications.application | length")
 
 setupTestdata
+
+waitForMessageProcessing
+
 # Verify that a normal request works, expect three recommendations and three reviews
 assertCurl 200 "curl http://$HOST:$PORT/product-composite/$PROD_ID_REVS_RECS -s"
 assertEqual $PROD_ID_REVS_RECS $(echo $RESPONSE | jq .productId)
-echo "$RESPONSE"
 assertEqual 3 $(echo $RESPONSE | jq ".recommendations | length")
 assertEqual 3 $(echo $RESPONSE | jq ".reviews | length")
 
@@ -180,11 +222,19 @@ assertEqual "\"Invalid productId: -1\"" "$(echo $RESPONSE | jq .message)"
 assertCurl 400 "curl http://$HOST:$PORT/product-composite/invalidProductId -s"
 assertEqual "\"Type mismatch.\"" "$(echo $RESPONSE | jq .message)"
 
-
+# Verify access to Swagger and OpenAPI URLs
+echo "Swagger/OpenAPI tests"
+assertCurl 302 "curl -s  http://$HOST:$PORT/openapi/swagger-ui.html"
+assertCurl 200 "curl -sL http://$HOST:$PORT/openapi/swagger-ui.html"
+assertCurl 200 "curl -s  http://$HOST:$PORT/openapi/webjars/swagger-ui/index.html?configUrl=/v3/api-docs/swagger-config"
+assertCurl 200 "curl -s  http://$HOST:$PORT/openapi/v3/api-docs"
+assertEqual "3.0.1" "$(echo $RESPONSE | jq -r .openapi)"
+assertEqual "http://$HOST:$PORT" "$(echo $RESPONSE | jq -r .servers[].url)"
+assertCurl 200 "curl -s  http://$HOST:$PORT/openapi/v3/api-docs.yaml"
 
 if [[ $@ == *"stop"* ]]
 then
-    echo "We are done, stopping the test enviroment..."
+    echo "We are done, stopping the test environment..."
     echo "$ docker-compose down"
     docker-compose down
 fi

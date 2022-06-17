@@ -1,3 +1,23 @@
+#spring.config.import: "configserver:"
+#
+#spring:
+#  application.name: recommendation
+#  cloud.config:
+#    failFast: true
+#    retry:
+#      initialInterval: 3000
+#      multiplier: 1.3
+#      maxInterval: 10000
+#      maxAttempts: 20
+#    uri: http://localhost:8888
+#    username: ${CONFIG_SERVER_USR}
+#    password: ${CONFIG_SERVER_PWD}
+#
+#---
+#spring.config.activate.on-profile: docker
+#
+#spring.cloud.config.uri: http://config-server:8888
+
 server.port: 7002
 server.error.include-message: always
 
@@ -5,10 +25,15 @@ spring.application.name: recommendation
 
 app.eureka-server: localhost
 
+app:
+  eureka-username: u
+  eureka-password: p
+  eureka-server: localhost
+
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://${app.eureka-server}:8761/eureka/
+      defaultZone: "http://${app.eureka-username}:${app.eureka-password}@${app.eureka-server}:8761/eureka/"
     initialInstanceInfoReplicationIntervalSeconds: 5
     registryFetchIntervalSeconds: 5
   instance:
