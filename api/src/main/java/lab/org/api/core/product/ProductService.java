@@ -8,7 +8,10 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public interface ProductService {
 
     @GetMapping(value = "/product/{productId}", produces = APPLICATION_JSON_VALUE)
-    Mono<Product> getProduct(@PathVariable int productId);
+    Mono<Product> getProduct(
+            @PathVariable int productId,
+            @RequestParam(value = "delay", required = false, defaultValue = "0") int delay,
+            @RequestParam(value = "faultPercent", required = false, defaultValue = "0") int faultPercent);
 
     Mono<Product> createProduct(Product body);
 

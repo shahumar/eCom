@@ -1,7 +1,12 @@
 package lab.org.microservices.composite.product.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
+import io.github.resilience4j.timelimiter.annotation.TimeLimiter;
 import lab.org.api.event.Event;
+import lab.org.util.http.ServiceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,12 +25,14 @@ import lab.org.api.core.review.Review;
 import lab.org.util.http.HttpErrorInfo;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.logging.Level;
 
 import lab.org.api.exceptions.NotFoundException;
 import lab.org.api.exceptions.InvalidInputException;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -52,26 +59,34 @@ public class ProductCompositeIntegration implements ProductService,
     private final Scheduler scheduler;
 
     private final StreamBridge streamBridge;
+    private final ServiceUtil serviceUtil;
 
     @Autowired
     public ProductCompositeIntegration(
             @Qualifier("publishEventScheduler") Scheduler publishEventScheduler,
             WebClient.Builder webClient,
             StreamBridge streamBridge,
-            ObjectMapper mapper
+            ObjectMapper mapper,
+            ServiceUtil serviceUtil
     ) {
         this.scheduler = publishEventScheduler;
         this.client = webClient.build();
         this.mapper = mapper;
         this.streamBridge = streamBridge;
+        this.serviceUtil = serviceUtil;
     }
 
     @Override
-    public Mono<Product> getProduct(int productId) {
-        String url = PRODUCT_SERVICE_URL + "/product/" + productId;
-        LOG.debug("Will call the getProduct API on URL: {}", url);
+    @Retry(name = "product")
+    @TimeLimiter(name = "product")
+    @CircuitBreaker(name = "product", fallbackMethod = "getProductFallbackValue")
+    public Mono<Product> getProduct(int productId, int delay, int faultPercent) {
+        URI uri = UriComponentsBuilder.fromUriString(PRODUCT_SERVICE_URL + "/product/{productId}?delay={delay}"
+                + "&faultPercent={faultPercent}").build(productId, delay, faultPercent);
+//        String url = PRODUCT_SERVICE_URL + "/product/" + productId;
+        LOG.debug("Will call the getProduct API on URL: {}", uri);
         return client.get()
-                .uri(url)
+                .uri(uri)
                 .retrieve()
                 .bodyToMono(Product.class)
                 .log(LOG.getName(), Level.FINE)
@@ -201,6 +216,20 @@ public class ProductCompositeIntegration implements ProductService,
         } catch (IOException ioex) {
             return ex.getMessage();
         }
+    }
+
+    private Mono<Product> getProductFallbackValue(int productId, int delay, int faultPercent, CallNotPermittedException ex) {
+
+        LOG.warn("Creating a fail-fast fallback product for productId = {}, delay = {}, faultPercent = {} and exception = {} ",
+                productId, delay, faultPercent, ex.toString());
+
+        if (productId == 13) {
+            String errMsg = "Product Id: " + productId + " not found in fallback cache!";
+            LOG.warn(errMsg);
+            throw new NotFoundException(errMsg);
+        }
+
+        return Mono.just(new Product(productId, "Fallback product" + productId, productId, serviceUtil.getServiceAddress()));
     }
 
 
