@@ -45,5 +45,7 @@ public class HttpErrorInfo {
         return message;
     }
 
-    public String getError() { return httpStatus.getReasonPhrase();}
+    public String getError() {
+        return httpStatus.getReasonPhrase();
+    }
 }

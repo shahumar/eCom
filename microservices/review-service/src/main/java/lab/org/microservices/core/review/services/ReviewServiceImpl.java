@@ -44,7 +44,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public Mono<Review> createReview(Review body) {
-        if(body.getProductId() < 1) {
+        if (body.getProductId() < 1) {
             throw new InvalidInputException("Invalid productId: " + body.getProductId());
         }
         return Mono.fromCallable(() -> internalCreateReview(body))

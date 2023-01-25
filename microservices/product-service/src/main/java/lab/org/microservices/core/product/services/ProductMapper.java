@@ -2,7 +2,7 @@ package lab.org.microservices.core.product.services;
 
 
 import lab.org.api.core.product.Product;
-import lab.org.microservices.core.product.persistence.ProductEntity;
+import lab.org.microservices.core.product.persistence.entity.product.ProductEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;

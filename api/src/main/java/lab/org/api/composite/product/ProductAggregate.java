@@ -1,11 +1,12 @@
 package lab.org.api.composite.product;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public class ProductAggregate {
     private final int productId;
     private final String name;
-    private final int weight;
+    private final BigDecimal weight;
     private final List<RecommendationSummary> recommendations;
     private final List<ReviewSummary> reviews;
     private final ServiceAddresses serviceAddresses;
@@ -13,7 +14,7 @@ public class ProductAggregate {
     public ProductAggregate() {
         productId = 0;
         name = null;
-        weight = 0;
+        weight = BigDecimal.valueOf(0);
         recommendations = null;
         reviews = null;
         serviceAddresses = null;
@@ -23,7 +24,7 @@ public class ProductAggregate {
     public ProductAggregate(
             int productId,
             String name,
-            int weight,
+            BigDecimal weight,
             List<RecommendationSummary> recommendations,
             List<ReviewSummary> reviews,
             ServiceAddresses serviceAddresses) {
@@ -44,7 +45,7 @@ public class ProductAggregate {
         return name;
     }
 
-    public int getWeight() {
+    public BigDecimal getWeight() {
         return weight;
     }
 

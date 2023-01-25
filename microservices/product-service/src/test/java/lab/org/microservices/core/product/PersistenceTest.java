@@ -1,7 +1,7 @@
 package lab.org.microservices.core.product;
 
-import lab.org.microservices.core.product.persistence.ProductEntity;
-import lab.org.microservices.core.product.persistence.ProductRepository;
+import lab.org.microservices.core.product.persistence.repository.product.ProductRepository;
+import lab.org.microservices.core.product.persistence.entity.product.ProductEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,22 +9,10 @@ import org.springframework.boot.autoconfigure.mongo.embedded.EmbeddedMongoAutoCo
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.OptimisticLockingFailureException;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import reactor.test.StepVerifier;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import static java.util.stream.IntStream.rangeClosed;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.data.domain.Sort.Direction.ASC;
-
 @DataMongoTest(
-        excludeAutoConfiguration = EmbeddedMongoAutoConfiguration.class,
-        properties = {"spring.cloud.config.enabled=false"}
+        excludeAutoConfiguration = EmbeddedMongoAutoConfiguration.class
 )
 public class PersistenceTest extends MongoDbTestBase {
 
@@ -51,7 +39,9 @@ public class PersistenceTest extends MongoDbTestBase {
         ProductEntity newEntity = new ProductEntity(2, "n", 2);
 
         StepVerifier.create(repository.save(newEntity))
-                .expectNextMatches(createdEntity -> newEntity.getProductId() == createdEntity.getProductId())
+                .expectNextMatches(
+                        createdEntity -> newEntity.getProductId() == createdEntity.getProductId()
+                )
                 .verifyComplete();
 
         StepVerifier.create(repository.findById(newEntity.getId()))
@@ -136,12 +126,14 @@ public class PersistenceTest extends MongoDbTestBase {
 //    }
 
     private boolean areProductEqual(ProductEntity expectedEntity, ProductEntity actualEntity) {
-        return
-            (expectedEntity.getId().equals(actualEntity.getId()))
-            && (expectedEntity.getVersion() == actualEntity.getVersion())
-            && (expectedEntity.getProductId() == actualEntity.getProductId())
-            && (expectedEntity.getName().equals(actualEntity.getName()))
-            && (expectedEntity.getWeight() == actualEntity.getWeight());
+        boolean result =
+                (expectedEntity.getId().equals(actualEntity.getId()))
+                        && (expectedEntity.getVersion() == actualEntity.getVersion())
+                        && (expectedEntity.getProductId() == actualEntity.getProductId())
+                        && (expectedEntity.getName().equals(actualEntity.getName()))
+                        && (expectedEntity.getWeight().equals(actualEntity.getWeight()));
+
+        return result;
     }
 
 //    private Pageable testNextPage(Pageable nextPage, String expectedId, boolean expectedNextPage) {

@@ -4,8 +4,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lab.org.api.core.product.Product;
 import lab.org.api.event.Event;
-import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.Test;
+
+import java.math.BigDecimal;
 
 import static lab.org.api.event.Event.Type.CREATE;
 import static lab.org.api.event.Event.Type.DELETE;
@@ -20,10 +21,10 @@ public class IsSameEventTests {
 
     @Test
     void testEventObjectCompare() throws JsonProcessingException {
-        Event<Integer, Product> event1 = new Event<>(CREATE, 1, new Product(1, "name", 1, null));
-        Event<Integer, Product> event2 = new Event<>(CREATE, 1, new Product(1, "name", 1, null));
+        Event<Integer, Product> event1 = new Event<>(CREATE, 1, new Product(1, "name", BigDecimal.ONE, null));
+        Event<Integer, Product> event2 = new Event<>(CREATE, 1, new Product(1, "name", BigDecimal.ONE, null));
         Event<Integer, Product> event3 = new Event<>(DELETE, 1, null);
-        Event<Integer, Product> event4 = new Event<>(CREATE, 1, new Product(2, "name", 1, null));
+        Event<Integer, Product> event4 = new Event<>(CREATE, 1, new Product(2, "name", BigDecimal.ONE, null));
 
         String event1Json = mapper.writeValueAsString(event1);
 

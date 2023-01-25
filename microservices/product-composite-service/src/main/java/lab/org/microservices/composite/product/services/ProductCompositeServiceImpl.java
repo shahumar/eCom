@@ -16,6 +16,7 @@ import lab.org.api.core.review.Review;
 import lab.org.api.core.recommendation.Recommendation;
 import reactor.core.publisher.Mono;
 
+import java.math.BigDecimal;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -69,7 +70,7 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
             Product product = new Product(body.getProductId(), body.getName(), body.getWeight(), null);
             monoList.add(integration.createProduct(product));
 
-            if(body.getRecommendations() != null) {
+            if (body.getRecommendations() != null) {
                 body.getRecommendations().forEach(r -> {
                     Recommendation recommendation = new Recommendation(body.getProductId(), r.getRecommendationId(), r.getAuthor(), r.getRate(), r.getContent(), null);
                     monoList.add(integration.createRecommendation(recommendation));
@@ -83,7 +84,7 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
             }
 
             LOG.debug("createCompositeProduct: composite entities created for productId: {}", body.getProductId());
-            return Mono.zip(r ->"", monoList.toArray(new Mono[0]))
+            return Mono.zip(r -> "", monoList.toArray(new Mono[0]))
                     .doOnError(ex -> LOG.warn("createCompositeProduct failed: {}", ex.toString()))
                     .then();
         } catch (RuntimeException e) {
@@ -102,7 +103,7 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
                     integration.deleteProduct(productId),
                     integration.deleteReviews(productId),
                     integration.deleteRecommendations(productId))
-                    .doOnError(ex ->  LOG.warn("delete failed: {}", ex.toString()))
+                    .doOnError(ex -> LOG.warn("delete failed: {}", ex.toString()))
                     .log(LOG.getName(), Level.FINE).then();
         } catch (RuntimeException re) {
             LOG.warn("deleteCompositeProduct failed: {}", re.toString());
@@ -120,12 +121,12 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
         logAuthorizationInfo(sc);
         int productId = product.getProductId();
         String name = product.getName();
-        int weight = product.getWeight();
+        BigDecimal weight = product.getWeight();
 
         List<RecommendationSummary> recommendationSummaries =
                 (recommendations == null) ? null : recommendations.stream()
-                .map(r -> new RecommendationSummary(r.getRecommendationId(), r.getAuthor(), r.getRate(), r.getContent()))
-                .collect(Collectors.toList());
+                        .map(r -> new RecommendationSummary(r.getRecommendationId(), r.getAuthor(), r.getRate(), r.getContent()))
+                        .collect(Collectors.toList());
 
         List<ReviewSummary> reviewSummaries =
                 (reviews == null) ? null : reviews.stream()
@@ -142,7 +143,7 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
 
     private Mono<SecurityContext> getLogAuthorizationInfoMono() {
         return getSecurityContextMono().doOnNext(sc -> logAuthorizationInfo((SecurityContext) sc));
-                
+
     }
 
     private void logAuthorizationInfo(SecurityContext sc) {
@@ -158,7 +159,7 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
         if (token == null) {
             LOG.warn("No JWT supplied running tests are we?");
         } else {
-            if(LOG.isDebugEnabled()) {
+            if (LOG.isDebugEnabled()) {
                 URL issuer = token.getIssuer();
                 List<String> audience = token.getAudience();
                 Object subject = token.getClaims().get("sub");

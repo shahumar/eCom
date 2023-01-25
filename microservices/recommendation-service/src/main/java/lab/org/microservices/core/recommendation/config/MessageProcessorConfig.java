@@ -39,7 +39,7 @@ public class MessageProcessorConfig {
                     recommendationService.deleteRecommendations(productId).block();
                     break;
                 default:
-                    String errorMessage = "Incorrect event type: "+event.getEventType()+", expected a CREATE or DELETE event";
+                    String errorMessage = "Incorrect event type: " + event.getEventType() + ", expected a CREATE or DELETE event";
                     LOG.warn(errorMessage);
                     throw new EventProcessingException(errorMessage);
             }

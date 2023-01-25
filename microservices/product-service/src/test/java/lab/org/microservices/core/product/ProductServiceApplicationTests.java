@@ -3,18 +3,15 @@ package lab.org.microservices.core.product;
 import lab.org.api.core.product.Product;
 import lab.org.api.event.Event;
 import lab.org.api.exceptions.InvalidInputException;
-import lab.org.microservices.core.product.persistence.ProductEntity;
-import lab.org.microservices.core.product.persistence.ProductRepository;
-import org.junit.jupiter.api.Assertions;
+//import lab.org.microservices.core.product.persistence.ProductEntity;
+import lab.org.microservices.core.product.persistence.repository.product.ProductRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import reactor.core.publisher.Mono;
 
 import java.util.function.Consumer;
 
@@ -26,9 +23,7 @@ import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static reactor.core.publisher.Mono.just;
 
-@SpringBootTest(webEnvironment = RANDOM_PORT, properties = {
-        "eureka.client.enabled=false",
-        "spring.cloud.config.enabled=false"})
+@SpringBootTest(webEnvironment = RANDOM_PORT)
 class ProductServiceApplicationTests extends MongoDbTestBase {
 
 
@@ -57,7 +52,7 @@ class ProductServiceApplicationTests extends MongoDbTestBase {
 
         sendCreateProductEvent(productId);
         assertNotNull(repository.findByProductId(productId).block());
-        assertEquals(1, (long)repository.count().block());
+        assertEquals(1, (long) repository.count().block());
         getAndVerifyProduct(productId, OK).jsonPath("$.productId").isEqualTo(productId);
 
     }
@@ -97,7 +92,7 @@ class ProductServiceApplicationTests extends MongoDbTestBase {
 
         int productIdNotFound = 13;
         getAndVerifyProduct(productIdNotFound, NOT_FOUND)
-                .jsonPath("$.path").isEqualTo("/product/"+productIdNotFound)
+                .jsonPath("$.path").isEqualTo("/product/" + productIdNotFound)
                 .jsonPath("$.message").isEqualTo("No product found for productId: " + productIdNotFound);
 
     }
@@ -107,8 +102,8 @@ class ProductServiceApplicationTests extends MongoDbTestBase {
 
         int productIdInvalid = -1;
         getAndVerifyProduct(productIdInvalid, UNPROCESSABLE_ENTITY)
-                .jsonPath("$.path").isEqualTo("/product/"+productIdInvalid)
-                .jsonPath("$.message").isEqualTo("Invalid productId: "+productIdInvalid);
+                .jsonPath("$.path").isEqualTo("/product/" + productIdInvalid)
+                .jsonPath("$.message").isEqualTo("Invalid productId: " + productIdInvalid);
     }
 
 
@@ -126,7 +121,7 @@ class ProductServiceApplicationTests extends MongoDbTestBase {
 
     private WebTestClient.BodyContentSpec deleteAndVerifyProduct(int productId, HttpStatus ok) {
         return client.delete()
-                .uri("/product/"+productId)
+                .uri("/product/" + productId)
                 .accept(APPLICATION_JSON)
                 .exchange()
                 .expectStatus().isEqualTo(ok)
@@ -135,7 +130,7 @@ class ProductServiceApplicationTests extends MongoDbTestBase {
 
     private WebTestClient.BodyContentSpec getAndVerifyProduct(String productPath, HttpStatus expectedStatus) {
         return client.get()
-                .uri("/product"+productPath)
+                .uri("/product" + productPath)
                 .accept(APPLICATION_JSON)
                 .exchange()
                 .expectStatus().isEqualTo(expectedStatus)
@@ -144,12 +139,12 @@ class ProductServiceApplicationTests extends MongoDbTestBase {
     }
 
     private WebTestClient.BodyContentSpec getAndVerifyProduct(int productId, HttpStatus status) {
-        return getAndVerifyProduct("/"+productId, status);
+        return getAndVerifyProduct("/" + productId, status);
 
     }
 
     private WebTestClient.BodyContentSpec postAndVerifyProduct(int productId, HttpStatus status) {
-        Product newProduct = new Product(productId, "Name "+productId, productId, "SA");
+        Product newProduct = new Product(productId, "Name " + productId, productId, "SA");
 
         return client.post()
                 .uri("/product")
@@ -161,8 +156,6 @@ class ProductServiceApplicationTests extends MongoDbTestBase {
                 .expectBody();
 
     }
-
-
 
 
 }

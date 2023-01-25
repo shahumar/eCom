@@ -25,6 +25,7 @@ import lab.org.api.core.review.Review;
 import lab.org.util.http.HttpErrorInfo;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.net.URI;
 import java.util.logging.Level;
 
@@ -44,7 +45,7 @@ import static reactor.core.publisher.Flux.empty;
 
 @Component
 public class ProductCompositeIntegration implements ProductService,
-        RecommendationService, ReviewService{
+        RecommendationService, ReviewService {
 
     private static final String PRODUCT_SERVICE_URL = "http://product";
     private static final String RECOMMENDATION_SERVICE_URL = "http://recommendation";
@@ -115,7 +116,7 @@ public class ProductCompositeIntegration implements ProductService,
 
     @Override
     public Mono<Void> deleteReviews(int productId) {
-        return Mono.fromRunnable( () -> sendMessage("reviews-out-0", new Event(DELETE, productId, null)))
+        return Mono.fromRunnable(() -> sendMessage("reviews-out-0", new Event(DELETE, productId, null)))
                 .subscribeOn(scheduler).then();
     }
 
@@ -160,14 +161,15 @@ public class ProductCompositeIntegration implements ProductService,
 
     }
 
-    public Mono<Health> getProductHealth(){
+    public Mono<Health> getProductHealth() {
         return getHealth(PRODUCT_SERVICE_URL);
     }
-    public Mono<Health> getRecommendationHealth(){
+
+    public Mono<Health> getRecommendationHealth() {
         return getHealth(RECOMMENDATION_SERVICE_URL);
     }
 
-    public Mono<Health> getReviewHealth(){
+    public Mono<Health> getReviewHealth() {
         return getHealth(REVIEW_SERVICE_URL);
     }
 
@@ -229,7 +231,7 @@ public class ProductCompositeIntegration implements ProductService,
             throw new NotFoundException(errMsg);
         }
 
-        return Mono.just(new Product(productId, "Fallback product" + productId, productId, serviceUtil.getServiceAddress()));
+        return Mono.just(new Product(productId, "Fallback product" + productId, BigDecimal.valueOf(productId), serviceUtil.getServiceAddress()));
     }
 
 

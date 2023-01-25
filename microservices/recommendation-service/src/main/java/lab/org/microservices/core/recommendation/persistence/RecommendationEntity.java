@@ -21,7 +21,8 @@ public class RecommendationEntity {
     private int rating;
     private String content;
 
-    public RecommendationEntity(){}
+    public RecommendationEntity() {
+    }
 
     public RecommendationEntity(int productId, int recommendationId, String author, int rating, String content) {
         this.productId = productId;

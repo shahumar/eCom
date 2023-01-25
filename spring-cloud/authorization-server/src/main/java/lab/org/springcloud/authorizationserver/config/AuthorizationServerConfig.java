@@ -28,7 +28,7 @@ import java.util.UUID;
 
 @Configuration(proxyBeanMethods = false)
 @Import(OAuth2AuthorizationServerConfiguration.class)
-public class AuthorizationServerConfig{
+public class AuthorizationServerConfig {
 
     private static final Logger LOG = LoggerFactory.getLogger(AuthorizationServerConfig.class);
 
@@ -77,6 +77,6 @@ public class AuthorizationServerConfig{
 
     @Bean
     public ProviderSettings providerSettings() {
-        return new ProviderSettings().issuer("http://auth-server:9999");
+        return new ProviderSettings().issuer("http://auth-server");
     }
 }

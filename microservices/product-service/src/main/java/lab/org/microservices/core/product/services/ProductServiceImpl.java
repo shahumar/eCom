@@ -1,7 +1,7 @@
 package lab.org.microservices.core.product.services;
 
-import lab.org.microservices.core.product.persistence.ProductEntity;
-import lab.org.microservices.core.product.persistence.ProductRepository;
+import lab.org.microservices.core.product.persistence.repository.product.ProductRepository;
+import lab.org.microservices.core.product.persistence.entity.product.ProductEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +16,6 @@ import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.util.Random;
-import java.util.logging.Level;
-import java.util.random.RandomGenerator;
 
 import static java.util.logging.Level.FINE;
 

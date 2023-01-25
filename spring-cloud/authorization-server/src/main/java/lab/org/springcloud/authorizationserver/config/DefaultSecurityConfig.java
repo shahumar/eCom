@@ -23,12 +23,12 @@ public class DefaultSecurityConfig {
                 .permitAll()
                 .anyRequest()
                 .authenticated()
-            ).formLogin(Customizer.withDefaults());
+        ).formLogin(Customizer.withDefaults());
         return http.build();
     }
 
     @Bean
-    UserDetailsService userDetailsService () {
+    UserDetailsService userDetailsService() {
         UserDetails user = User.withDefaultPasswordEncoder()
                 .username("u")
                 .password("p")

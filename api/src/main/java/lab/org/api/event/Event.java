@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 
 
-public class Event<K, T>{
+public class Event<K, T> {
 
     public enum Type {
         CREATE, DELETE
@@ -45,7 +45,7 @@ public class Event<K, T>{
         return data;
     }
 
-    @JsonSerialize(using= LocalDateTimeSerializer.class)
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
     public LocalDateTime getEventCreatedAt() {
         return eventCreatedAt;
     }

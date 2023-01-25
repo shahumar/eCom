@@ -14,7 +14,8 @@ import java.security.spec.EllipticCurve;
 
 public final class KeyGeneratorUtils {
 
-    private KeyGeneratorUtils() {}
+    private KeyGeneratorUtils() {
+    }
 
     static KeyPair generateRsaKey() {
         KeyPair keyPair;
@@ -44,7 +45,7 @@ public final class KeyGeneratorUtils {
             KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("EC");
             keyPairGenerator.initialize(ecParameterSpec);
             keyPair = keyPairGenerator.generateKeyPair();
-        } catch (Exception ex){
+        } catch (Exception ex) {
             throw new IllegalStateException(ex);
         }
         return keyPair;

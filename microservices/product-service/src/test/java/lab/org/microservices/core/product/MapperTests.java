@@ -1,9 +1,11 @@
 package lab.org.microservices.core.product;
 
 import lab.org.api.core.product.Product;
-import lab.org.microservices.core.product.persistence.ProductEntity;
+import lab.org.microservices.core.product.persistence.entity.product.ProductEntity;
 import lab.org.microservices.core.product.services.ProductMapper;
+
 import static org.junit.jupiter.api.Assertions.*;
+
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 

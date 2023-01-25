@@ -24,20 +24,23 @@ public class GlobalControllerExceptionHandler {
 
     @ResponseStatus(BAD_REQUEST)
     @ExceptionHandler(BadRequestException.class)
-    public @ResponseBody HttpErrorInfo handleBadRequestExceptions(ServerHttpRequest request, BadRequestException e){
+    public @ResponseBody
+    HttpErrorInfo handleBadRequestExceptions(ServerHttpRequest request, BadRequestException e) {
         return createHttpErrorInfo(BAD_REQUEST, request, e);
 
     }
 
     @ResponseStatus(NOT_FOUND)
     @ExceptionHandler(NotFoundException.class)
-    public @ResponseBody HttpErrorInfo handleNotFoundException(ServerHttpRequest request, NotFoundException e) {
+    public @ResponseBody
+    HttpErrorInfo handleNotFoundException(ServerHttpRequest request, NotFoundException e) {
         return createHttpErrorInfo(NOT_FOUND, request, e);
     }
 
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
     @ExceptionHandler(InvalidInputException.class)
-    public @ResponseBody HttpErrorInfo handleInvalidInputException(
+    public @ResponseBody
+    HttpErrorInfo handleInvalidInputException(
             ServerHttpRequest request, InvalidInputException ex) {
 
         return createHttpErrorInfo(HttpStatus.UNPROCESSABLE_ENTITY, request, ex);

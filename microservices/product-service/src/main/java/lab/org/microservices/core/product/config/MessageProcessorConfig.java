@@ -9,10 +9,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.mongodb.config.EnableReactiveMongoAuditing;
 
 import java.util.function.Consumer;
 
 @Configuration
+@EnableReactiveMongoAuditing
 public class MessageProcessorConfig {
 
     private static final Logger LOG = LoggerFactory.getLogger(MessageProcessorConfig.class);

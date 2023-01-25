@@ -42,7 +42,7 @@ public interface ProductCompositeService {
     })
     @ResponseStatus(HttpStatus.ACCEPTED)
     @PostMapping(
-            value    = "/product-composite",
+            value = "/product-composite",
             consumes = "application/json")
     Mono<Void> createProduct(@RequestBody ProductAggregate body);
 

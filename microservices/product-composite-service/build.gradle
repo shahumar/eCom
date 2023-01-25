@@ -29,14 +29,14 @@ dependencies {
     implementation 'org.springdoc:springdoc-openapi-webflux-ui:1.6.8'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
-    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.security:spring-security-oauth2-resource-server'
     implementation 'org.springframework.security:spring-security-oauth2-jose'
     implementation "io.github.resilience4j:resilience4j-spring-boot2:${resilience4jVersion}"
     implementation "io.github.resilience4j:resilience4j-reactor:${resilience4jVersion}"
     implementation 'org.springframework.boot:spring-boot-starter-aop'
-//    implementation 'org.springframework.cloud:spring-cloud-starter-config'
+    implementation 'org.springframework.cloud:spring-cloud-starter-sleuth'
+    implementation 'org.springframework.cloud:spring-cloud-sleuth-zipkin'
     implementation 'org.springframework.retry:spring-retry'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.cloud:spring-cloud-stream::test-binder'
@@ -65,3 +65,6 @@ dependencyManagement {
 tasks.named('test') {
     useJUnitPlatform()
 }
+
+compileJava.options.debugOptions.debugLevel = "source,lines,vars"
+compileTestJava.options.debugOptions.debugLevel = "source,lines,vars"

@@ -3,9 +3,16 @@ version: '2.1'
 services:
   product:
     build: microservices/product-service
+    image: hands-on/product-service
     mem_limit: 512m
     environment:
       - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_0,kafka
+      - SPRING_CONFIG_LOCATION=file:/config-repo/application.yml,file:/config-repo/product.yml
+      - SPRING_DATA_MONGODB_AUTHENTICATION_DATABASE=admin
+      - SPRING_DATA_MONGODB_USERNAME=${MONGODB_USR}
+      - SPRING_DATA_MONGODB_PASSWORD=${MONGODB_PWD}
+    volumes:
+      - $PWD/config-repo:/config-repo
     depends_on:
       mongodb:
         condition: service_healthy
@@ -14,9 +21,16 @@ services:
 
   product-p1:
     build: microservices/product-service
+    image: hands-on/product-service
     mem_limit: 512m
     environment:
       - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_1,kafka
+      - SPRING_CONFIG_LOCATION=file:/config-repo/application.yml,file:/config-repo/product.yml
+      - SPRING_DATA_MONGODB_AUTHENTICATION_DATABASE=admin
+      - SPRING_DATA_MONGODB_USERNAME=${MONGODB_USR}
+      - SPRING_DATA_MONGODB_PASSWORD=${MONGODB_PWD}
+    volumes:
+      - $PWD/config-repo:/config-repo
     depends_on:
       mongodb:
         condition: service_healthy
@@ -25,9 +39,16 @@ services:
 
   recommendation:
     build: microservices/recommendation-service
+    image: hands-on/recommendation-service
     mem_limit: 512m
     environment:
       - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_0,kafka
+      - SPRING_CONFIG_LOCATION=file:/config-repo/application.yml,file:/config-repo/recommendation.yml
+      - SPRING_DATA_MONGODB_AUTHENTICATION_DATABASE=admin
+      - SPRING_DATA_MONGODB_USERNAME=${MONGODB_USR}
+      - SPRING_DATA_MONGODB_PASSWORD=${MONGODB_PWD}
+    volumes:
+      - $PWD/config-repo:/config-repo
     depends_on:
       mongodb:
         condition: service_healthy
@@ -36,9 +57,16 @@ services:
 
   recommendation-p1:
     build: microservices/recommendation-service
+    image: hands-on/recommendation-service
     mem_limit: 512m
     environment:
       - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_1,kafka
+      - SPRING_CONFIG_LOCATION=file:/config-repo/application.yml,file:/config-repo/recommendation.yml
+      - SPRING_DATA_MONGODB_AUTHENTICATION_DATABASE=admin
+      - SPRING_DATA_MONGODB_USERNAME=${MONGODB_USR}
+      - SPRING_DATA_MONGODB_PASSWORD=${MONGODB_PWD}
+    volumes:
+      - $PWD/config-repo:/config-repo
     depends_on:
       mongodb:
         condition: service_healthy
@@ -47,9 +75,15 @@ services:
 
   review:
     build: microservices/review-service
+    image: hands-on/review-service
     mem_limit: 512m
     environment:
       - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_0,kafka
+      - SPRING_CONFIG_LOCATION=file:/config-repo/application.yml,file:/config-repo/review.yml
+      - SPRING_DATASOURCE_USERNAME=${MYSQL_USR}
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_PWD}
+    volumes:
+      - $PWD/config-repo:/config-repo
     depends_on:
       mysql:
         condition: service_healthy
@@ -58,9 +92,15 @@ services:
 
   review-p1:
     build: microservices/review-service
+    image: hands-on/review-service
     mem_limit: 512m
     environment:
       - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,streaming_instance_1,kafka
+      - SPRING_CONFIG_LOCATION=file:/config-repo/application.yml,file:/config-repo/review.yml
+      - SPRING_DATASOURCE_USERNAME=${MYSQL_USR}
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_PWD}
+    volumes:
+      - $PWD/config-repo:/config-repo
     depends_on:
       mysql:
         condition: service_healthy
@@ -68,13 +108,19 @@ services:
         condition: service_started
 
   product-composite:
-    mem_limit: 512m
     build: microservices/product-composite-service
+    image: hands-on/product-composite-service
+    mem_limit: 512m
     environment:
       - SPRING_PROFILES_ACTIVE=docker,streaming_partitioned,kafka
+      - SPRING_CONFIG_LOCATION=file:/config-repo/application.yml,file:/config-repo/product-composite.yml
+    volumes:
+      - $PWD/config-repo:/config-repo
     depends_on:
       kafka:
         condition: service_started
+      auth-server:
+        condition: service_healthy
 
   mongodb:
     image: mongo:4.4.2
@@ -82,6 +128,9 @@ services:
     ports:
       - "27017:27017"
     command: mongod
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGODB_USR}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGODB_PWD}
     healthcheck:
       test: "mongo --eval 'db.stats().ok'"
       interval: 5s
@@ -94,12 +143,12 @@ services:
     ports:
       - "3306:3306"
     environment:
-      - MYSQL_ROOT_PASSWORD=rootpwd
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PWD}
       - MYSQL_DATABASE=review-db
-      - MYSQL_USER=user
-      - MYSQL_PASSWORD=pwd
+      - MYSQL_USER=${MYSQL_USR}
+      - MYSQL_PASSWORD=${MYSQL_PWD}
     healthcheck:
-      test: "/usr/bin/mysql --user=user --password=pwd --execute \"SHOW DATABASES;\""
+      test: "/usr/bin/mysql --user=${MYSQL_USR} --password=${MYSQL_PWD} --execute \"SHOW DATABASES;\""
       interval: 5s
       timeout: 2s
       retries: 60
@@ -124,15 +173,16 @@ services:
     environment:
       - KAFKA_ADVERTISED_HOST_NAME=zookeeper
 
-  eureka:
-    build: spring-cloud/eureka-server
-    mem_limit: 512m
-
   gateway:
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker
     build: spring-cloud/gateway
+    image: hands-on/gateway
     mem_limit: 512m
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker,kafka
+      - SPRING_CONFIG_LOCATION=file:/config-repo/application.yml,file:/config-repo/gateway.yml
+      - SERVER_SSL_KEY_STORE_PASSWORD=${GATEWAY_TLS_PWD}
+    volumes:
+      - $PWD/config-repo:/config-repo
     ports:
       - "8443:8443"
     depends_on:
@@ -140,23 +190,27 @@ services:
         condition: service_healthy
 
   auth-server:
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker
     build: spring-cloud/authorization-server
+    image: hands-on/auth-server
     mem_limit: 512m
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker,kafka
+      - SPRING_CONFIG_LOCATION=file:/config-repo/application.yml,file:/config-repo/auth-server.yml
+    volumes:
+      - $PWD/config-repo:/config-repo
     healthcheck:
-      test: [ "CMD", "curl", "-fs", "http://localhost:9999/actuator/health" ]
+      test: [ "CMD", "curl", "-fs", "http://localhost/actuator/health" ]
       interval: 5s
       timeout: 2s
       retries: 60
 
-  config-server:
-    build: spring-cloud/config-server
-    mem_limit: 512m
+  zipkin:
+    image: openzipkin/zipkin:2.23.2
+    mem_limit: 1024m
     environment:
-      - SPRING_PROFILES_ACTIVE=docker,native
-      - ENCRYPT_KEY=${CONFIG_SERVER_ENCRYPT_KEY}
-      - SPRING_SECURITY_USER_NAME=${CONFIG_SERVER_USR}
-      - SPRING_SECURITY_USER_PASSWORD=${CONFIG_SERVER_PWD}
-    volumes:
-      - $PWD/config-repo:/config-repo
+      - STORAGE_TYPE=mem
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+    ports:
+      - 9411:9411
+    depends_on:
+      - kafka

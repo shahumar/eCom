@@ -1,22 +1,31 @@
 package lab.org.api.core.product;
 
+import java.math.BigDecimal;
+
 public class Product {
     private int productId;
     private String name;
-    private int weight;
+    private BigDecimal weight;
     private String serviceAddress;
 
     public Product() {
         productId = 0;
         name = null;
-        weight = 0;
+        weight = BigDecimal.valueOf(0);
         serviceAddress = null;
+    }
+
+    public Product(int productId, String name, BigDecimal weight, String serviceAddress) {
+        this.productId = productId;
+        this.name = name;
+        this.weight = weight;
+        this.serviceAddress = serviceAddress;
     }
 
     public Product(int productId, String name, int weight, String serviceAddress) {
         this.productId = productId;
         this.name = name;
-        this.weight = weight;
+        this.weight = BigDecimal.valueOf(weight);
         this.serviceAddress = serviceAddress;
     }
 
@@ -28,7 +37,7 @@ public class Product {
         return name;
     }
 
-    public int getWeight() {
+    public BigDecimal getWeight() {
         return weight;
     }
 
@@ -48,7 +57,7 @@ public class Product {
         this.name = name;
     }
 
-    public void setWeight(int weight) {
+    public void setWeight(BigDecimal weight) {
         this.weight = weight;
     }
 }

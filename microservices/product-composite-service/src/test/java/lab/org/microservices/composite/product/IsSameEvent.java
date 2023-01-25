@@ -34,10 +34,19 @@ public class IsSameEvent extends TypeSafeMatcher<String> {
             return false;
         LOG.trace("Convert the following json string to a map: {}", eventAsJson);
         Map mapEvent = convertJsonStringToMap(eventAsJson);
+        System.out.println(eventAsJson);
+        System.out.println("-------------------------");
+        System.out.println(expectedEvent);
 
         mapEvent.remove("eventCreatedAt");
-
-        Map mapExpectedEvent = getMapWithoutCreatedAt(expectedEvent);
+        Map mapExpectedEvent = null;
+        try {
+            mapExpectedEvent = convertJsonStringToMap(mapper.writeValueAsString(expectedEvent));
+            mapExpectedEvent.remove("eventCreatedAt");
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return false;
+        }
         LOG.trace("Got the map: {}", mapEvent);
         LOG.trace("Compare to the expected map: {}", mapExpectedEvent);
         return mapEvent.equals(mapExpectedEvent);
@@ -57,7 +66,8 @@ public class IsSameEvent extends TypeSafeMatcher<String> {
 
     private Map convertJsonStringToMap(String eventAsJson) {
         try {
-            return mapper.readValue(eventAsJson, new TypeReference<HashMap>() {});
+            return mapper.readValue(eventAsJson, new TypeReference<HashMap>() {
+            });
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

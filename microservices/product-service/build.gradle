@@ -5,10 +5,10 @@ plugins {
 }
 
 group = 'lab.org.microservices.core.product'
-                                                                                                                                                                                                                                                                                                                                                                                                    version = '0.0.1-SNAPSHOT'
+version = '0.0.1-SNAPSHOT'
 sourceCompatibility = "17"
 
-repositories {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
+repositories {
     mavenCentral()
 }
 jar {
@@ -29,9 +29,13 @@ dependencies {
     implementation platform('org.testcontainers:testcontainers-bom:1.15.2')
     implementation 'org.springframework.cloud:spring-cloud-starter-stream-rabbit'
     implementation 'org.springframework.cloud:spring-cloud-starter-stream-kafka'
-    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
-//    implementation 'org.springframework.cloud:spring-cloud-starter-config'
+//    implementation 'org.springframework.cloud:spring-cloud-starter-sleuth'
+//    implementation 'org.springframework.cloud:spring-cloud-sleuth-zipkin'
     implementation 'org.springframework.retry:spring-retry'
+
+    compileOnly 'org.projectlombok:lombok'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    annotationProcessor 'org.projectlombok:lombok'
 
     compileOnly "org.mapstruct:mapstruct-processor:${mapstructVersion}"
 

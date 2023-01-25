@@ -14,7 +14,8 @@ import java.security.interfaces.RSAPublicKey;
 import java.util.UUID;
 
 public final class Jwks {
-    private Jwks(){}
+    private Jwks() {
+    }
 
     public static RSAKey generateRsa() {
         KeyPair keyPair = KeyGeneratorUtils.generateRsaKey();

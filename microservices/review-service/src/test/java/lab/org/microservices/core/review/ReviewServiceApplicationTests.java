@@ -27,15 +27,15 @@ import java.util.function.Consumer;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT, properties = {
         "spring.cloud.stream.defaultBinder=rabbit",
-        "logging.level.se.magnus=DEBUG",
-        "eureka.client.enabled=false",
-        "spring.jpa.hibernate.ddl-auto=update",
-        "spring.cloud.config.enabled=false"})
+        "logging.level.lab.org=DEBUG",
+        "spring.jpa.hibernate.ddl-auto=update"})
 class ReviewServiceApplicationTests extends MySqlTestBase {
 
-    @Autowired private WebTestClient client;
+    @Autowired
+    private WebTestClient client;
 
-    @Autowired private ReviewRepository repository;
+    @Autowired
+    private ReviewRepository repository;
 
     @Autowired
     @Qualifier("messageProcessor")
@@ -143,12 +143,12 @@ class ReviewServiceApplicationTests extends MySqlTestBase {
     }
 
     private WebTestClient.BodyContentSpec getAndVerifyReviewsByProductId(int productId, HttpStatus expectedStatus) {
-        return getAndVerifyReviewsByProductId("?productId="+productId, expectedStatus);
+        return getAndVerifyReviewsByProductId("?productId=" + productId, expectedStatus);
     }
 
     private WebTestClient.BodyContentSpec getAndVerifyReviewsByProductId(String productQuery, HttpStatus expectedStatus) {
         return client.get()
-                .uri("/review"+productQuery)
+                .uri("/review" + productQuery)
                 .accept(APPLICATION_JSON)
                 .exchange()
                 .expectStatus().isEqualTo(expectedStatus)
@@ -158,7 +158,7 @@ class ReviewServiceApplicationTests extends MySqlTestBase {
 
 
     private WebTestClient.BodyContentSpec postAndVerifyReview(int productId, int reviewId, HttpStatus expectedStatus) {
-        Review review = new Review(productId, reviewId, "Author "+reviewId, "Subject " + reviewId, "Content " + reviewId, "SA");
+        Review review = new Review(productId, reviewId, "Author " + reviewId, "Subject " + reviewId, "Content " + reviewId, "SA");
         return client.post()
                 .uri("/review")
                 .body(just(review), Review.class)
@@ -179,7 +179,6 @@ class ReviewServiceApplicationTests extends MySqlTestBase {
         Event<Integer, Review> event = new Event(DELETE, productId, null);
         messageProcessor.accept(event);
     }
-
 
 
 }

@@ -1,7 +1,8 @@
 package lab.org.api.exceptions;
 
 public class EventProcessingException extends RuntimeException {
-    public EventProcessingException(){}
+    public EventProcessingException() {
+    }
 
     public EventProcessingException(String message) {
         super(message);

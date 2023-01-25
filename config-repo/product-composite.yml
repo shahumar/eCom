@@ -1,7 +1,7 @@
 springdoc:
   swagger-ui.path: /openapi/swagger-ui.html
   api-docs.path: /openapi/v3/api-docs
-  packagesToScan: se.magnus.microservices.composite.product
+  packagesToScan: lab.org.microservices.composite.product
   pathsToMatch: /**
   cache.disabled: true
 
@@ -9,7 +9,8 @@ springdoc:
     oauth2-redirect-url: https://localhost:8443/webjars/swagger-ui/oauth2-redirect.html
     oauth:
       clientId: writer
-      clientSecret: '{cipher}4ec25f436feb83f24d23a89f70b5bc374d4afac0b4693bd9fe527183d1f83893'
+      # TODO: EXTERNALIZE!
+      clientSecret: secret
       useBasicAuthenticationWithAccessCodeGrant: true
   oAuthFlow:
     authorizationUrl: https://localhost:8443/oauth2/authorize
@@ -94,18 +95,48 @@ spring.cloud.stream:
       producer:
         required-groups: auditGroup
 
-spring.security.oauth2.resourceserver.jwt.issuer-uri: http://${app.auth-server}:9999
+spring.security.oauth2.resourceserver.jwt.issuer-uri: http://${app.auth-server}
+
+resilience4j.timelimiter:
+  instances:
+    product:
+      timeoutDuration: 2s
+
+resilience4j.retry:
+  instances:
+    product:
+      maxAttempts: 3
+      waitDuration: 1000
+      retryExceptions:
+        - org.springframework.web.reactive.function.client.WebClientResponseException$InternalServerError
+
+management.health.circuitbreakers.enabled: true
+
+resilience4j.circuitbreaker:
+  instances:
+    product:
+      allowHealthIndicatorToFail: false
+      registerHealthIndicator: true
+      slidingWindowType: COUNT_BASED
+      slidingWindowSize: 5
+      failureRateThreshold: 50
+      waitDurationInOpenState: 10000
+      permittedNumberOfCallsInHalfOpenState: 3
+      automaticTransitionFromOpenToHalfOpenEnabled: true
+      ignoreExceptions:
+        - lab.org.api.exceptions.InvalidInputException
+        - lab.org.api.exceptions.NotFoundException
 
 logging:
   level:
     root: INFO
-    se.magnus: DEBUG
+    lab.org: DEBUG
     org.springframework.web.server.adapter.HttpWebHandlerAdapter: TRACE
 
 ---
 spring.config.activate.on-profile: docker
 
-server.port: 8080
+server.port: 80
 
 ---
 spring.config.activate.on-profile: streaming_partitioned
@@ -121,3 +152,12 @@ spring.cloud.stream.bindings.recommendations-out-0.producer:
 spring.cloud.stream.bindings.reviews-out-0.producer:
   partition-key-expression: headers['partitionKey']
   partition-count: 2
+
+---
+spring.config.activate.on-profile: prod
+
+logging:
+  level:
+    root: WARN
+    lab.org: WARN
+    org.springframework.web.server.adapter.HttpWebHandlerAdapter: WARN

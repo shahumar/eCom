@@ -20,7 +20,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
-public class RecommendationServiceImpl implements RecommendationService{
+public class RecommendationServiceImpl implements RecommendationService {
     private static final Logger LOG = LoggerFactory.getLogger(RecommendationServiceImpl.class);
 
     private final RecommendationRepository repository;

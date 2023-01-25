@@ -8,9 +8,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @SpringBootTest(
         webEnvironment = RANDOM_PORT,
         properties = {
-                "spring.security.oauth2.resourceserver.jwt.jwk-set-uri=some-url",
-                "eureka.client.enabled=false",
-                "spring.cloud.config.enabled=false"})
+                "spring.security.oauth2.resourceserver.jwt.jwk-set-uri=some-url"})
 class GatewayApplicationTests {
 
     @Test

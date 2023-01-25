@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 import static org.springframework.transaction.annotation.Propagation.NOT_SUPPORTED;
 
-@DataJpaTest(properties = {"spring.jpa.hibernate.ddl-auto=update", "spring.cloud.config.enabled=false"})
+@DataJpaTest(properties = {"spring.jpa.hibernate.ddl-auto=update"})
 @Transactional(propagation = NOT_SUPPORTED)
 @AutoConfigureTestDatabase(replace = NONE)
 public class PersistenceTests extends MySqlTestBase {
@@ -32,7 +32,7 @@ public class PersistenceTests extends MySqlTestBase {
     @BeforeEach
     void setupDB() {
         reviewRepository.deleteAll();
-        ReviewEntity entity = new ReviewEntity(1,2,"a", "s", "c");
+        ReviewEntity entity = new ReviewEntity(1, 2, "a", "s", "c");
         reviewEntity = reviewRepository.save(entity);
         assertEqualsReview(entity, reviewEntity);
     }
@@ -53,7 +53,7 @@ public class PersistenceTests extends MySqlTestBase {
         reviewRepository.save(reviewEntity);
 
         ReviewEntity foundEntity = reviewRepository.findById(reviewEntity.getId()).get();
-        assertEquals(1, (long)foundEntity.getVersion());
+        assertEquals(1, (long) foundEntity.getVersion());
         assertEquals("a2", foundEntity.getAuthor());
     }
 
@@ -73,7 +73,7 @@ public class PersistenceTests extends MySqlTestBase {
     @Test
     void duplicateError() {
         assertThrows(DataIntegrityViolationException.class, () -> {
-            ReviewEntity entity = new ReviewEntity(1,2,"a", "s", "c");
+            ReviewEntity entity = new ReviewEntity(1, 2, "a", "s", "c");
             reviewRepository.save(entity);
         });
     }
@@ -85,12 +85,12 @@ public class PersistenceTests extends MySqlTestBase {
         entity1.setAuthor("a1");
         reviewRepository.save(entity1);
         assertThrows(OptimisticLockingFailureException.class, () -> {
-           entity2.setAuthor("a2");
-           reviewRepository.save(entity2);
+            entity2.setAuthor("a2");
+            reviewRepository.save(entity2);
         });
 
         ReviewEntity updatedEntity = reviewRepository.findById(reviewEntity.getId()).get();
-        assertEquals(1, (int)updatedEntity.getVersion());
+        assertEquals(1, (int) updatedEntity.getVersion());
         assertEquals("a1", updatedEntity.getAuthor());
     }
 
