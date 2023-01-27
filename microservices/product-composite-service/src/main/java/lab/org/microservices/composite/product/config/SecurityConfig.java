@@ -25,6 +25,7 @@ public class SecurityConfig {
                 .and()
                 .oauth2ResourceServer()
                 .jwt();
+        http.csrf(csrf -> csrf.disable());
         return http.build();
     }
 }

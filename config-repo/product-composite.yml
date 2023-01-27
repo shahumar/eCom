@@ -18,6 +18,10 @@ springdoc:
 
 server.forward-headers-strategy: framework
 
+spring:
+  main:
+    web-application-type: reactive
+
 api:
 
   common:
@@ -129,9 +133,9 @@ resilience4j.circuitbreaker:
 
 logging:
   level:
-    root: INFO
+    root: DEBUG
     lab.org: DEBUG
-    org.springframework.web.server.adapter.HttpWebHandlerAdapter: TRACE
+    org.springframework.web.server.adapter.HttpWebHandlerAdapter: DEBUG
 
 ---
 spring.config.activate.on-profile: docker
@@ -158,6 +162,6 @@ spring.config.activate.on-profile: prod
 
 logging:
   level:
-    root: WARN
-    lab.org: WARN
-    org.springframework.web.server.adapter.HttpWebHandlerAdapter: WARN
+    root: DEBUG
+    lab.org: DEBUG
+    org.springframework.web.server.adapter.HttpWebHandlerAdapter: DEBUG

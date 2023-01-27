@@ -2,7 +2,7 @@ apiVersion: v2
 appVersion: "1.0"
 description: A Helm chart for HANDS-ON MICROSERVICES WITH SPRING BOOT AND SPRING CLOUD running in a Dev and Test Environment
 name: dev-env
-version: 1.0.0
+version: 1.0.1
 
 dependencies:
 
