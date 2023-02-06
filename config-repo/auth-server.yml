@@ -3,7 +3,7 @@ server.forward-headers-strategy: framework
 
 logging:
   level:
-    root: INFO
+    root: DEBUG
 
 ---
 spring.config.activate.on-profile: docker
@@ -13,4 +13,4 @@ server.port: 80
 ---
 spring.config.activate.on-profile: prod
 
-logging.level.root: WARN
+logging.level.root: DEBUG
