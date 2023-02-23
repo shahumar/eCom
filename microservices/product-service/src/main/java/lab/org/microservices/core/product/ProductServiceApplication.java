@@ -65,40 +65,40 @@ public class ProductServiceApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        System.out.println("Insert product when start server");
-        Random rand = new Random();
-        ProductDescription description = new ProductDescription();
-        description.setMetaTagDescription("how are you");
-        description.setProductExternalDl("external DL");
-        description.setSeUrl("http://test.lab.com");
-        description.setMetaTagTitle("Example");
-        descriptionRepository.save(description).block();
-
-        ProductAvailability availability = new ProductAvailability();
-        availability.setAvailable(true);
-        availability.setDateAvailable(LocalDateTime.now());
-        availability.setOwner("shah");
-        availability.setRegion("Dubai");
-        availability.setStatus(true);
-        availability.setIsAlwaysFreeShipping(false);
-        availabilityRepository.save(availability).block();
-
-
-        ProductEntity entity = new ProductEntity();
-//        entity.setAvailable(true);
-        entity.setProductId(9877);
-//        entity.setMerchantId(1);
-//        entity.setModifiedBy("xyz");
-//        entity.setProductIsFree(false);
-        entity.setName("Initial product");
-        entity.setWeight(BigDecimal.ONE);
-//        entity.setRefSku("123xyz123");
-//        entity.setSku(rand.nextInt() + "");
-//        entity.getDescriptions().add(description);
-//        entity.getAvailabilities().add(availability);
-        repository.save(entity)
-                .log("test te the log", Level.FINE)
-                .block();
+//        System.out.println("Insert product when start server");
+//        Random rand = new Random();
+//        ProductDescription description = new ProductDescription();
+//        description.setMetaTagDescription("how are you");
+//        description.setProductExternalDl("external DL");
+//        description.setSeUrl("http://test.lab.com");
+//        description.setMetaTagTitle("Example");
+//        descriptionRepository.save(description).block();
+//
+//        ProductAvailability availability = new ProductAvailability();
+//        availability.setAvailable(true);
+//        availability.setDateAvailable(LocalDateTime.now());
+//        availability.setOwner("shah");
+//        availability.setRegion("Dubai");
+//        availability.setStatus(true);
+//        availability.setIsAlwaysFreeShipping(false);
+//        availabilityRepository.save(availability).block();
+//
+//
+////        ProductEntity entity = new ProductEntity();
+////        entity.setAvailable(true);
+////        entity.setProductId(9877);
+////        entity.setMerchantId(1);
+////        entity.setModifiedBy("xyz");
+////        entity.setProductIsFree(false);
+////        entity.setName("Initial product");
+////        entity.setWeight(BigDecimal.ONE);
+////        entity.setRefSku("123xyz123");
+////        entity.setSku(rand.nextInt() + "");
+////        entity.getDescriptions().add(description);
+////        entity.getAvailabilities().add(availability);
+////        repository.save(entity)
+////                .log("test te the log", Level.FINE)
+////                .block();
 
 
         System.out.println(

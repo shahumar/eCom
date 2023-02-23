@@ -1,4 +1,5 @@
 server.port: 8443
+management.server.port: 8443
 
 server.ssl:
   key-store-type: PKCS12
@@ -43,17 +44,17 @@ spring.sleuth.reactor.instrumentation-type: decorate-on-last
 
 logging:
   level:
-    root: DEBUG
-    org.springframework.cloud.gateway.route.RouteDefinitionRouteLocator: DEBUG
-    org.springframework.cloud.gateway: DEBUG
-    org.springframework.web.server.adapter.HttpWebHandlerAdapter: DEBUG
+    root: INFO
+    org.springframework.cloud.gateway.route.RouteDefinitionRouteLocator: INFO
+    org.springframework.cloud.gateway: TRACE
+    org.springframework.web.server.adapter.HttpWebHandlerAdapter: TRACE
 
 ---
 spring.config.activate.on-profile: prod
 
 logging:
   level:
-    root: DEBUG
-    org.springframework.cloud.gateway.route.RouteDefinitionRouteLocator: DEBUG
-    org.springframework.cloud.gateway: DEBUG
-    org.springframework.web.server.adapter.HttpWebHandlerAdapter: DEBUG
+    root: WARN
+    org.springframework.cloud.gateway.route.RouteDefinitionRouteLocator: WARN
+    org.springframework.cloud.gateway: WARN
+    org.springframework.web.server.adapter.HttpWebHandlerAdapter: WARN

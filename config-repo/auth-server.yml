@@ -1,6 +1,12 @@
 server.port: 9999
+spring.application.name: auth-serve
 server.forward-headers-strategy: framework
-
+management:
+  endpoint:
+    health:
+      group:
+        readiness:
+          include:
 logging:
   level:
     root: DEBUG
