@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.RestController;
 import lab.org.api.core.product.ProductService;
 import lab.org.api.core.product.Product;
@@ -53,7 +54,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Mono<Product> getProduct(int productId, int delay, int faultPercent) {
+    public Mono<Product> getProduct(HttpHeaders headers, int productId, int delay, int faultPercent) {
         LOG.debug("/product return the found product for productId={}", productId);
 
         if (productId < 1) {

@@ -32,6 +32,9 @@ public class AuthorizationServerConfig {
 
     private static final Logger LOG = LoggerFactory.getLogger(AuthorizationServerConfig.class);
 
+    @Value("${api.common.redirectUri}")
+    String redirectUri;
+
     @Bean
     public RegisteredClientRepository registeredClientRepository() {
         LOG.info("register OAUTH client allowing all grant flow");
@@ -43,7 +46,7 @@ public class AuthorizationServerConfig {
                 .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
                 .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
                 .redirectUri("https://my.redirect.uri")
-                .redirectUri("https://localhost:8443/webjars/swagger-ui/oauth2-redirect.html")
+                .redirectUri(redirectUri)
                 .scope(OidcScopes.OPENID)
                 .scope("product:read")
                 .scope("product:write")
@@ -59,7 +62,7 @@ public class AuthorizationServerConfig {
                 .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
                 .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
                 .redirectUri("https://my.redirect.uri")
-                .redirectUri("https://localhost:8443/webjars/swagger-ui/oauth2-redirect.html")
+                .redirectUri(redirectUri)
                 .scope(OidcScopes.OPENID)
                 .scope("product:read")
                 .clientSettings(clientSettings -> clientSettings.requireUserConsent(true))

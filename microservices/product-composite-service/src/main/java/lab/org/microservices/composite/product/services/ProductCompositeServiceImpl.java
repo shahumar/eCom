@@ -4,6 +4,7 @@ import lab.org.api.composite.product.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextImpl;
@@ -42,7 +43,7 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
     }
 
     @Override
-    public Mono<ProductAggregate> getProduct(int productId, int delay, int faultPercent) {
+    public Mono<ProductAggregate> getProduct(HttpHeaders headers, int productId, int delay, int faultPercent) {
         LOG.info("Will get composite product info for product.id={}", productId);
         return Mono.zip(
                 values -> createProductAggregate(
@@ -52,9 +53,9 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
                         (List<Review>) values[3],
                         serviceUtil.getServiceAddress()),
                 getSecurityContextMono(),
-                integration.getProduct(productId, delay, faultPercent),
-                integration.getRecommendations(productId).collectList(),
-                integration.getReviews(productId).collectList())
+                integration.getProduct(headers, productId, delay, faultPercent),
+                integration.getRecommendations(headers, productId).collectList(),
+                integration.getReviews(headers, productId).collectList())
                 .doOnError(ex -> LOG.warn("getCompositeProduct failed: {}", ex.toString()))
                 .log(LOG.getName(), Level.FINE);
     }

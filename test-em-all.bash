@@ -56,6 +56,7 @@ function assertEqual() {
 
 function testUrl() {
   url=$@
+  echo " URLLLLL $url"
   if $url -ks -f -o /dev/null
   then
     return 0

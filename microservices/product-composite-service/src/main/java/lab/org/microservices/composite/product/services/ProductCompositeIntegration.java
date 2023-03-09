@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.cloud.stream.function.StreamBridge;
+import org.springframework.http.HttpHeaders;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Component;
@@ -81,13 +82,14 @@ public class ProductCompositeIntegration implements ProductService,
     @Retry(name = "product")
     @TimeLimiter(name = "product")
     @CircuitBreaker(name = "product", fallbackMethod = "getProductFallbackValue")
-    public Mono<Product> getProduct(int productId, int delay, int faultPercent) {
+    public Mono<Product> getProduct(HttpHeaders headers, int productId, int delay, int faultPercent) {
         URI uri = UriComponentsBuilder.fromUriString(PRODUCT_SERVICE_URL + "/product/{productId}?delay={delay}"
                 + "&faultPercent={faultPercent}").build(productId, delay, faultPercent);
 //        String url = PRODUCT_SERVICE_URL + "/product/" + productId;
         LOG.debug("Will call the getProduct API on URL: {}", uri);
         return client.get()
                 .uri(uri)
+                .headers(h -> h.addAll(headers))
                 .retrieve()
                 .bodyToMono(Product.class)
                 .log(LOG.getName(), Level.FINE)
@@ -104,11 +106,12 @@ public class ProductCompositeIntegration implements ProductService,
     }
 
     @Override
-    public Flux<Review> getReviews(int productId) {
+    public Flux<Review> getReviews(HttpHeaders headers, int productId) {
         String url = REVIEW_SERVICE_URL + "/review?productId=" + productId;
         LOG.debug("Will call the getReviews API on URL: {}", url);
         return client.get()
                 .uri(url)
+                .headers(h -> h.addAll(headers))
                 .retrieve().bodyToFlux(Review.class)
                 .log(LOG.getName(), Level.FINE)
                 .onErrorResume(error -> empty());
@@ -121,11 +124,12 @@ public class ProductCompositeIntegration implements ProductService,
     }
 
     @Override
-    public Flux<Recommendation> getRecommendations(int productId) {
+    public Flux<Recommendation> getRecommendations(HttpHeaders headers, int productId) {
         String url = RECOMMENDATION_SERVICE_URL + "/recommendation?productId=" + productId;
         LOG.debug("Will call the getRecommendations API on URL: {}", url);
         return client.get()
                 .uri(url)
+                .headers(h -> h.addAll(headers))
                 .retrieve()
                 .bodyToFlux(Recommendation.class)
                 .log(LOG.getName(), Level.FINE)
@@ -220,7 +224,7 @@ public class ProductCompositeIntegration implements ProductService,
         }
     }
 
-    private Mono<Product> getProductFallbackValue(int productId, int delay, int faultPercent, CallNotPermittedException ex) {
+    private Mono<Product> getProductFallbackValue(HttpHeaders headers, int productId, int delay, int faultPercent, CallNotPermittedException ex) {
 
         LOG.warn("Creating a fail-fast fallback product for productId = {}, delay = {}, faultPercent = {} and exception = {} ",
                 productId, delay, faultPercent, ex.toString());

@@ -1,3 +1,5 @@
 server.error.include-message: always
 
 spring.cloud.stream.defaultBinder: rabbit
+
+api.common.redirectUri: https://localhost:8443/webjars/swagger-ui/oauth2-redirect.html
