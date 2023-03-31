@@ -1,10 +1,7 @@
 package lab.org.microservices.core.recommendation.services;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Level;
 
-import lab.org.api.exceptions.NotFoundException;
 import lab.org.microservices.core.recommendation.persistence.RecommendationEntity;
 import lab.org.microservices.core.recommendation.persistence.RecommendationRepository;
 import org.slf4j.Logger;

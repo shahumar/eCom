@@ -1,0 +1,55 @@
+plugins {
+    id 'org.springframework.boot' version '2.7.1'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'java'
+}
+
+group = 'lab.org.microservices.core.kitchenservice'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '17'
+
+jar {
+    enabled = false
+}
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    eventuateTramSagasVersion='0.7.2.RELEASE'
+    eventuatePlatformVersion='2022.0.RELEASE'
+}
+
+dependencies {
+    implementation project(':api')
+    implementation project(':util')
+
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    compileOnly 'org.projectlombok:lombok'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    annotationProcessor 'org.projectlombok:lombok'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+    implementation platform("io.eventuate.platform:eventuate-platform-dependencies:$eventuatePlatformVersion")
+    implementation "io.eventuate.tram.core:eventuate-tram-spring-jdbc-kafka"
+    implementation "io.eventuate.tram.core:eventuate-tram-spring-events"
+    implementation "io.eventuate.tram.core:eventuate-tram-spring-optimistic-locking"
+    implementation "io.eventuate.tram.core:eventuate-tram-spring-events-starter"
+    implementation "io.eventuate.tram.view.support:eventuate-tram-view-support-rebuild:$eventuateTramViewSupportVersion"
+    implementation "io.eventuate.tram.core:eventuate-tram-aggregate-domain-events"
+    implementation "io.eventuate.tram.core:eventuate-tram-spring-commands"
+
+
+    implementation "io.eventuate.tram.sagas:eventuate-tram-sagas-spring-orchestration-simple-dsl"
+
+    testImplementation 'org.testcontainers:testcontainers'
+//    testImplementation 'org.testcontainers:junit-jupiter'
+    testImplementation 'org.testcontainers:mysql:1.17.2'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'io.projectreactor:reactor-test'
+}
+
+test {
+    useJUnitPlatform()
+}

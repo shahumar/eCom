@@ -13,7 +13,6 @@ import lab.org.api.core.review.Review;
 import lab.org.api.event.Event;
 import lab.org.api.exceptions.InvalidInputException;
 import lab.org.microservices.core.review.persistence.ReviewRepository;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +20,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import reactor.core.publisher.Mono;
 
 import java.util.function.Consumer;
 

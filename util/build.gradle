@@ -5,7 +5,7 @@ plugins {
 
 group 'lab.org.microservices.util'
 version '1.0-SNAPSHOT'
-sourceCompatibility = 1.8
+sourceCompatibility = '17'
 
 repositories {
     mavenCentral()
@@ -17,9 +17,10 @@ ext {
 
 dependencies {
     implementation platform("org.springframework.boot:spring-boot-dependencies:${springBootVersion}")
-
     implementation project(':api')
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    implementation platform("io.eventuate.platform:eventuate-platform-dependencies:$eventuatePlatformVersion")
+    implementation "io.eventuate.tram.core:eventuate-tram-spring-events"
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 

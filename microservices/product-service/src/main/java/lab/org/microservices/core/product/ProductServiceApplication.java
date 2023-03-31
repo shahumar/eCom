@@ -4,8 +4,6 @@ import lab.org.microservices.core.product.persistence.repository.product.Product
 import lab.org.microservices.core.product.persistence.repository.product.ProductDescriptionRepository;
 import lab.org.microservices.core.product.persistence.repository.product.ProductRepository;
 import lab.org.microservices.core.product.persistence.entity.product.ProductEntity;
-import lab.org.microservices.core.product.persistence.entity.product.availability.ProductAvailability;
-import lab.org.microservices.core.product.persistence.entity.product.description.ProductDescription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,11 +21,6 @@ import org.springframework.data.mongodb.core.index.MongoPersistentEntityIndexRes
 import org.springframework.data.mongodb.core.index.ReactiveIndexOperations;
 import org.springframework.data.mongodb.core.mapping.MongoPersistentEntity;
 import org.springframework.data.mongodb.core.mapping.MongoPersistentProperty;
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.Random;
-import java.util.logging.Level;
 
 @SpringBootApplication
 @ComponentScan("lab.org")

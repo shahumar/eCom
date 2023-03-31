@@ -4,29 +4,71 @@ plugins {
     id 'java'
 }
 
-group = 'lab.org'
+group = 'lab.org.microservices.core.order'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '17'
 
-configurations {
-    compileOnly {
-        extendsFrom annotationProcessor
-    }
+jar {
+    enabled = false
 }
 
 repositories {
     mavenCentral()
 }
 
+ext {
+    eventuateTramSagasVersion='0.7.2.RELEASE'
+    eventuatePlatformVersion='2022.0.RELEASE'
+    springBootVersion='2.7.1'
+}
+
+apply plugin: LabJSONSchema2PojoPlugin
+
 dependencies {
+    implementation project(':api')
+    implementation project(':util')
+    labApiSpecification project(":consumer-service-api-spec")
+    labApiSpecification project(":accounting-service-api-spec")
+    labApiSpecification project(":restaurant-service-api-spec")
+
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     annotationProcessor 'org.projectlombok:lombok'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation "org.springframework.boot:spring-boot-starter-actuator:$springBootVersion"
+
+    implementation platform("io.eventuate.platform:eventuate-platform-dependencies:$eventuatePlatformVersion")
+    implementation "io.eventuate.tram.core:eventuate-tram-spring-jdbc-kafka"
+    implementation "io.eventuate.tram.core:eventuate-tram-spring-events"
+    implementation "io.eventuate.tram.core:eventuate-tram-spring-optimistic-locking"
+    implementation "io.eventuate.tram.core:eventuate-tram-spring-events-starter"
+    implementation "io.eventuate.tram.view.support:eventuate-tram-view-support-rebuild:$eventuateTramViewSupportVersion"
+    implementation "io.eventuate.tram.core:eventuate-tram-aggregate-domain-events"
+    implementation "io.eventuate.tram.core:eventuate-tram-spring-commands"
+
+    implementation "io.eventuate.tram.sagas:eventuate-tram-sagas-spring-orchestration-simple-dsl"
+    implementation "io.micrometer:micrometer-registry-prometheus:$micrometerVersion"
+    testImplementation 'org.testcontainers:testcontainers'
+//    testImplementation 'org.testcontainers:junit-jupiter'
+    testImplementation 'org.testcontainers:mysql:1.17.2'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'io.projectreactor:reactor-test'
 }
 
-tasks.named('test') {
+test {
     useJUnitPlatform()
+}
+
+
+labJsonSchema2Pojo {
+
+    labConsumerService {
+        source = files("${labApiSpecsDir}/ValidateOrderByConsumer.json")
+        targetPackage = "lab.org.api.core.account"
+        includeAdditionalProperties = false
+        generateBuilders = true
+        useLongIntegers = true
+    }
+
 }

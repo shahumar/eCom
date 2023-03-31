@@ -3,14 +3,7 @@ package lab.org.microservices.composite.product.config;
 
 import lab.org.microservices.composite.product.services.ProductCompositeIntegration;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.actuate.health.CompositeReactiveHealthContributor;
-import org.springframework.boot.actuate.health.ReactiveHealthContributor;
-import org.springframework.boot.actuate.health.ReactiveHealthIndicator;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 @Configuration
 public class ActuatorConfig {

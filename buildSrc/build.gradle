@@ -1,0 +1,38 @@
+plugins {
+    id 'org.springframework.boot' version '2.7.1'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'java'
+}
+
+group = 'lab.org'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '17'
+
+bootJar {
+    enabled = false
+}
+
+jar {
+    enabled = true
+}
+
+
+repositories {
+    mavenCentral()
+    maven {
+        url "https://plugins.gradle.org/m2/"
+    }
+}
+
+dependencies {
+    implementation 'mysql:mysql-connector-java:8.0.21'
+    implementation 'com.amazonaws:aws-java-sdk-dynamodb:1.11.158'
+    implementation 'commons-lang:commons-lang:2.6'
+    implementation 'org.jsonschema2pojo:jsonschema2pojo-core:1.0.1'
+    implementation "gradle.plugin.org.hidetake:gradle-swagger-generator-plugin:2.18.1"
+
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}

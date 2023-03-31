@@ -11,7 +11,6 @@ import static reactor.core.publisher.Mono.just;
 
 import lab.org.api.core.recommendation.Recommendation;
 import lab.org.api.event.Event;
-import lab.org.api.exceptions.InvalidInputException;
 import lab.org.microservices.core.recommendation.persistence.RecommendationRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
