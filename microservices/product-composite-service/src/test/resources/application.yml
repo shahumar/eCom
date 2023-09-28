@@ -19,5 +19,6 @@ spring.cloud.stream:
   default.contentType: application/json
   bindings:
     products-out-0.destination: products
+    categories-out-0.destination: categories
     recommendations-out-0.destination: recommendations
     reviews-out-0.destination: reviews

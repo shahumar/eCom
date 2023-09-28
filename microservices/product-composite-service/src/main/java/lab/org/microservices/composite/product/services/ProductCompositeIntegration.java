@@ -48,7 +48,7 @@ import static reactor.core.publisher.Flux.empty;
 public class ProductCompositeIntegration implements ProductService,
         RecommendationService, ReviewService {
 
-    private static final String PRODUCT_SERVICE_URL = "http://product";
+    private static final String PRODUCT_SERVICE_URL = "http://catalogue";
     private static final String RECOMMENDATION_SERVICE_URL = "http://recommendation";
     private static final String REVIEW_SERVICE_URL = "http://review";
 
@@ -103,6 +103,17 @@ public class ProductCompositeIntegration implements ProductService,
             sendMessage("reviews-out-0", new Event(CREATE, body.getProductId(), body));
             return body;
         }).subscribeOn(scheduler);
+    }
+
+    @Override
+    public Flux<Product> listProducts() {
+        URI uri = UriComponentsBuilder.fromUriString(PRODUCT_SERVICE_URL + "/product/").build().toUri();
+        return client.get()
+                .uri(uri)
+                .retrieve()
+                .bodyToFlux(Product.class)
+                .log(LOG.getName(), Level.FINE)
+                .onErrorMap(WebClientResponseException.class, ex -> handleException(ex));
     }
 
     @Override

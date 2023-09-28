@@ -7,6 +7,7 @@ import lab.org.api.core.product.Product;
 import lab.org.api.core.recommendation.Recommendation;
 import lab.org.api.core.review.Review;
 import lab.org.api.event.Event;
+import lab.org.microservices.composite.TestSecurityConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -27,7 +28,7 @@ import java.util.List;
 import static java.util.Collections.singletonList;
 import static lab.org.api.event.Event.Type.CREATE;
 import static lab.org.api.event.Event.Type.DELETE;
-import static lab.org.microservices.composite.product.IsSameEvent.sameEventExceptCreatedAt;
+import static lab.org.microservices.composite.IsSameEvent.sameEventExceptCreatedAt;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -166,7 +167,7 @@ public class MessagingTests {
 
     private void postAndVerifyProduct(ProductAggregate compositeProduct, HttpStatus expectedStatus) {
         client.post()
-                .uri("/product-composite")
+                .uri("/product")
                 .body(just(compositeProduct), ProductAggregate.class)
                 .exchange()
                 .expectStatus().isEqualTo(expectedStatus);
@@ -174,7 +175,7 @@ public class MessagingTests {
 
     private void deleteAndVerifyProduct(int productId, HttpStatus expectedStatus) {
         client.delete()
-                .uri("/product-composite/" + productId)
+                .uri("/product/" + productId)
                 .exchange()
                 .expectStatus().isEqualTo(expectedStatus);
     }

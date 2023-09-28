@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 
 import static lab.org.api.event.Event.Type.CREATE;
 import static lab.org.api.event.Event.Type.DELETE;
-import static lab.org.microservices.composite.product.IsSameEvent.sameEventExceptCreatedAt;
+import static lab.org.microservices.composite.IsSameEvent.sameEventExceptCreatedAt;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;

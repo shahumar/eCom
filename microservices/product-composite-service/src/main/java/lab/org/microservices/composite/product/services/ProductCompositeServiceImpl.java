@@ -15,6 +15,7 @@ import lab.org.util.http.ServiceUtil;
 import lab.org.api.core.product.Product;
 import lab.org.api.core.review.Review;
 import lab.org.api.core.recommendation.Recommendation;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
@@ -59,6 +60,18 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
                 .doOnError(ex -> LOG.warn("getCompositeProduct failed: {}", ex.toString()))
                 .log(LOG.getName(), Level.FINE);
     }
+
+    @Override
+    public Flux<ProductAggregate> listProduct() {
+        LOG.info("will cate all the products");
+        Flux<Product> products = integration.listProducts();
+        if (products == null) {
+            return Flux.fromIterable(List.of());
+        }
+        return transform(products);
+
+    }
+
 
 
     @Override
@@ -176,5 +189,18 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
         return ReactiveSecurityContextHolder.getContext().defaultIfEmpty(nullSecCtx);
     }
 
+    private Flux<ProductAggregate> transform(Flux<Product> sourceFlux) {
+        return sourceFlux.flatMap(this::transformToTarget);
+    }
+
+    private Mono<ProductAggregate> transformToTarget(Product source) {
+        var mono = getSecurityContextMono();
+        return mono.map(sc -> createProductAggregate(
+                (SecurityContext) sc,
+                source,
+                List.of(),
+                List.of(),
+                serviceUtil.getServiceAddress()));
+    }
 
 }

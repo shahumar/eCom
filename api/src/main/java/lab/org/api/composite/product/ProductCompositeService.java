@@ -9,10 +9,12 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @SecurityRequirement(name = "security_auth")
 @Tag(name = "CompositeService", description = "REST API for composite product information.")
+@RequestMapping("/api/product")
 public interface ProductCompositeService {
 
     @Operation(
@@ -25,7 +27,7 @@ public interface ProductCompositeService {
             @ApiResponse(responseCode = "422", description = "${api.responseCodes.unprocessableEntity.description}")
     })
     @GetMapping(
-            value = "/product-composite/{productId}",
+            value = "/{productId}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     Mono<ProductAggregate> getProduct(
@@ -33,6 +35,20 @@ public interface ProductCompositeService {
             @PathVariable int productId,
             @RequestParam(value = "delay", required = false, defaultValue = "0") int delay,
             @RequestParam(value = "faultPercent", required = false, defaultValue = "0") int faultPercent);
+
+    @Operation(
+            summary = "${api.product-composite.list-composite-product.description}",
+            description = "${api.product-composite.list-composite-product.notes}"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "${api.responseCodes.ok.description}"),
+            @ApiResponse(responseCode = "400", description = "${api.responseCodes.badRequest.description}"),
+    })
+    @GetMapping(
+            value = "/list/",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    Flux<ProductAggregate> listProduct();
 
     @Operation(
             summary = "${api.product-composite.create-composite-product.description}",
@@ -44,7 +60,7 @@ public interface ProductCompositeService {
     })
     @ResponseStatus(HttpStatus.ACCEPTED)
     @PostMapping(
-            value = "/product-composite",
+            value = "",
             consumes = "application/json")
     Mono<Void> createProduct(@RequestBody ProductAggregate body);
 
@@ -56,6 +72,6 @@ public interface ProductCompositeService {
             @ApiResponse(responseCode = "422", description = "${api.responseCodes.unprocessableEntity.description}")
     })
     @ResponseStatus(HttpStatus.ACCEPTED)
-    @DeleteMapping(value = "/product-composite/{productId}")
+    @DeleteMapping(value = "/{productId}")
     Mono<Void> deleteProduct(@PathVariable int productId);
 }

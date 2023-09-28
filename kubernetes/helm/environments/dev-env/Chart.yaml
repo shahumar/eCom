@@ -26,7 +26,7 @@ dependencies:
     version: 1.0.0
     repository: file://../../components/auth-server
 
-  - name: product
+  - name: catalogue
     version: 1.0.0
     repository: file://../../components/product
 

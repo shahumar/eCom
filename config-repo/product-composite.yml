@@ -6,15 +6,15 @@ springdoc:
   cache.disabled: true
 
   swagger-ui:
-    oauth2-redirect-url: https://localhost:8443/webjars/swagger-ui/oauth2-redirect.html
+    oauth2-redirect-url: https://minikube.me/webjars/swagger-ui/oauth2-redirect.html
     oauth:
       clientId: writer
       # TODO: EXTERNALIZE!
       clientSecret: secret
       useBasicAuthenticationWithAccessCodeGrant: true
   oAuthFlow:
-    authorizationUrl: https://localhost:8443/oauth2/authorize
-    tokenUrl: https://localhost:8443/oauth2/token
+    authorizationUrl: https://minikube.me/oauth2/authorize
+    tokenUrl: https://minikube.me/oauth2/token
 
 server.forward-headers-strategy: framework
 
@@ -46,6 +46,20 @@ api:
     unprocessableEntity.description: Unprocessable entity, input parameters caused the processing to fail. See response message for more information
 
   product-composite:
+
+    list-composite-product:
+      description: Returns a composite view of th products
+      notes: |
+        # Normal response
+        Get All Products:
+        1. Product information
+        1. Reviews
+        1. Recommendations
+
+        # Expected partial and error responses
+        1. Empty Response if not products found
+        2. Partial response fi reviews or recommendations not found
+
 
     get-composite-product:
       description: Returns a composite view of the specified product id
@@ -103,12 +117,12 @@ spring.security.oauth2.resourceserver.jwt.issuer-uri: http://${app.auth-server}
 
 resilience4j.timelimiter:
   instances:
-    product:
+    catalogue:
       timeoutDuration: 2s
 
 resilience4j.retry:
   instances:
-    product:
+    catalogue:
       maxAttempts: 3
       waitDuration: 1000
       retryExceptions:
@@ -118,7 +132,7 @@ management.health.circuitbreakers.enabled: true
 
 resilience4j.circuitbreaker:
   instances:
-    product:
+    catalogue:
       allowHealthIndicatorToFail: false
       registerHealthIndicator: true
       slidingWindowType: COUNT_BASED

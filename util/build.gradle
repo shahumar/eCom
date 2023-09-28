@@ -19,8 +19,6 @@ dependencies {
     implementation platform("org.springframework.boot:spring-boot-dependencies:${springBootVersion}")
     implementation project(':api')
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
-    implementation platform("io.eventuate.platform:eventuate-platform-dependencies:$eventuatePlatformVersion")
-    implementation "io.eventuate.tram.core:eventuate-tram-spring-events"
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 

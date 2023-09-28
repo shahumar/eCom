@@ -12,6 +12,7 @@ import lab.org.api.core.recommendation.Recommendation;
 import lab.org.api.core.review.Review;
 import lab.org.api.exceptions.InvalidInputException;
 import lab.org.api.exceptions.NotFoundException;
+import lab.org.microservices.composite.TestSecurityConfig;
 import lab.org.microservices.composite.product.services.ProductCompositeIntegration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -57,6 +58,9 @@ class ProductCompositeServiceApplicationTests {
         when(compositeIntegration.getProduct(any(), eq(PRODUCT_ID_NOT_FOUND), anyInt(), anyInt())).thenThrow(new NotFoundException("NOT FOUND: " + PRODUCT_ID_NOT_FOUND));
 
         when(compositeIntegration.getProduct(any(), eq(PRODUCT_ID_INVALID), anyInt(), anyInt())).thenThrow(new InvalidInputException("INVALID: " + PRODUCT_ID_INVALID));
+
+        when(compositeIntegration.listProducts())
+                .thenReturn(Flux.fromIterable(singletonList(new Product(PRODUCT_ID_OK, "name", 1, "mock-address"))));
     }
 
     @Test
@@ -73,10 +77,24 @@ class ProductCompositeServiceApplicationTests {
     }
 
     @Test
+    void listProducts() {
+        var products = client.get()
+                .uri("/api/product/list/")
+                .accept(APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isEqualTo(OK)
+                .expectHeader().contentType(APPLICATION_JSON)
+                .expectBody()
+                .jsonPath("$.length()").isEqualTo(1);
+
+    }
+
+
+    @Test
     void getProductNotFound() {
 
         getAndVerifyProduct(PRODUCT_ID_NOT_FOUND, NOT_FOUND)
-                .jsonPath("$.path").isEqualTo("/product-composite/" + PRODUCT_ID_NOT_FOUND)
+                .jsonPath("$.path").isEqualTo("/api/product/" + PRODUCT_ID_NOT_FOUND)
                 .jsonPath("$.message").isEqualTo("NOT FOUND: " + PRODUCT_ID_NOT_FOUND);
     }
 
@@ -84,13 +102,13 @@ class ProductCompositeServiceApplicationTests {
     void getProductInvalidInput() {
 
         getAndVerifyProduct(PRODUCT_ID_INVALID, UNPROCESSABLE_ENTITY)
-                .jsonPath("$.path").isEqualTo("/product-composite/" + PRODUCT_ID_INVALID)
+                .jsonPath("$.path").isEqualTo("/api/product/" + PRODUCT_ID_INVALID)
                 .jsonPath("$.message").isEqualTo("INVALID: " + PRODUCT_ID_INVALID);
     }
 
     private WebTestClient.BodyContentSpec getAndVerifyProduct(int productId, HttpStatus expectedStatus) {
         return client.get()
-                .uri("/product-composite/" + productId)
+                .uri("/api/product/" + productId)
                 .accept(APPLICATION_JSON)
                 .exchange()
                 .expectStatus().isEqualTo(expectedStatus)

@@ -13,7 +13,7 @@ logging:
 ##"https://minikube.me/webjars/swagger-ui/oauth2-redirect.html"
 api:
   common:
-    redirectUri: https://localhost:8443/webjars/swagger-ui/oauth2-redirect.html
+    redirectUri: https://minikube.me/webjars/swagger-ui/oauth2-redirect.html
 
 ---
 spring.config.activate.on-profile: docker

@@ -43,7 +43,7 @@ auth-server:
   envFromSecretRefs:
     - rabbitmq-credentials
 
-product:
+catalogue:
   envFromSecretRefs:
     - rabbitmq-credentials
     - mongodb-credentials
@@ -65,6 +65,6 @@ product-composite:
 destinationRules:
   - name: product-composite
   - name: auth-server
-  - name: product
+  - name: catalogue
   - name: recommendation
   - name: review

@@ -36,7 +36,7 @@ dependencies {
     implementation "io.github.resilience4j:resilience4j-reactor:${resilience4jVersion}"
     implementation 'org.springframework.boot:spring-boot-starter-aop'
     implementation 'org.springframework.cloud:spring-cloud-starter-sleuth'
-    implementation 'io.micrometer:micrometer-registry-prometheus'
+//    implementation 'io.micrometer:micrometer-registry-prometheus'
 //    implementation 'org.springframework.cloud:spring-cloud-sleuth-zipkin'
     implementation 'org.springframework.retry:spring-retry'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
